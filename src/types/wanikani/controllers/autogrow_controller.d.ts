@@ -11,5 +11,4 @@ declare module "controllers/autogrow_controller" {
     autoGrow(): void;
     debounce(func: () => void, wait: number): () => void;
   }
-
 }

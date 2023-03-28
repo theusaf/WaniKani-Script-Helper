@@ -12,5 +12,4 @@ declare module "controllers/body_controller" {
     unfreeze(): void;
     frozenClass: string;
   }
-
 }
