@@ -1,6 +1,6 @@
 import DidChangeSRSEvent from "events/did_change_srs_event";
 export default class SRSManager {
-  srsMap;
+  #srsMap;
   static textForLevel(e) {
     switch (!0) {
       case e > 0 && e <= 4:
@@ -18,11 +18,11 @@ export default class SRSManager {
     }
   }
   constructor(srsMap) {
-    this.srsMap = srsMap;
+    this.#srsMap = srsMap;
   }
   updateSRS({ subject: subject, stats: stats }) {
-    if (!this.srsMap.has(subject.id)) return;
-    const srsLevel = this.srsMap.get(subject.id),
+    if (!this.#srsMap.has(subject.id)) return;
+    const srsLevel = this.#srsMap.get(subject.id),
       totalIncorrect = stats.meaning.incorrect + stats.reading.incorrect;
     if (0 === totalIncorrect)
       console.log(srsLevel, SRSManager.textForLevel(srsLevel + 1)),
