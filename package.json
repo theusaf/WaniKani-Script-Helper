@@ -1,0 +1,15 @@
+{
+  "name": "wanikani-script-helper",
+  "version": "1.0.0",
+  "description": "A userscript helper for WaniKani",
+  "main": "dist/index.user.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "theusaf",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^8.36.0",
+    "prettier": "^2.8.7"
+  }
+}
