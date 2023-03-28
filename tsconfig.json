@@ -11,6 +11,9 @@
     "lib": [
       "ES2022",
       "DOM"
+    ],
+    "typeRoots": [
+      "./src/types/**/*"
     ]
   },
   "include": [
