@@ -42,7 +42,7 @@ export default class QuizQueue {
       (this.#completeSubjectsInOrder = completeSubjectsInOrder),
       (this.#questionOrder = questionOrder);
   }
-  nextItem(e) {
+  nextItem(questionType) {
     if (
       0 === this.#totalItemsRemaining ||
       (this.#wrapUpManager.wrappingUp && 0 === this.#items.length)
@@ -51,11 +51,12 @@ export default class QuizQueue {
     this.currentItem = this.#items[0];
     const stat = this.#statsMap.get(this.currentItem);
     stat.reading.complete ||
-    (("meaning" === e || "meaningFirst" === this.#questionOrder) &&
+    (("meaning" === questionType || "meaningFirst" === this.#questionOrder) &&
       !stat.meaning.complete)
       ? (this.questionType = "meaning")
       : stat.meaning.complete ||
-        (("reading" === e || "readingFirst" === this.#questionOrder) &&
+        (("reading" === questionType ||
+          "readingFirst" === this.#questionOrder) &&
           !stat.reading.complete)
       ? (this.questionType = "reading")
       : (this.questionType = ["meaning", "reading"][
@@ -69,26 +70,34 @@ export default class QuizQueue {
       );
   }
   submitAnswer(answer, results) {
-    const i = this.#updateStatsFromOutcome(results.passed),
-      s = JSON.parse(JSON.stringify({ subject: this.currentItem, stats: i }));
+    const outcomeStat = this.#updateStatsFromOutcome(results.passed),
+      subjectWithStats = JSON.parse(
+        JSON.stringify({ subject: this.currentItem, stats: outcomeStat })
+      );
     window.dispatchEvent(
       new DidAnswerQuestionEvent({
-        subjectWithStats: s,
+        subjectWithStats: subjectWithStats,
         questionType: this.questionType,
         answer: answer,
         results: results,
       })
     ),
-      i.reading.complete && i.meaning.complete
-        ? (this.#api.itemComplete({ item: this.currentItem, stats: i }),
+      outcomeStat.reading.complete && outcomeStat.meaning.complete
+        ? (this.#api.itemComplete({
+            item: this.currentItem,
+            stats: outcomeStat,
+          }),
           window.dispatchEvent(
-            new DidCompleteSubjectEvent({ subjectWithStats: s })
+            new DidCompleteSubjectEvent({ subjectWithStats: subjectWithStats })
           ),
-          this.#srsManager.updateSRS({ subject: this.currentItem, stats: i }),
+          this.#srsManager.updateSRS({
+            subject: this.currentItem,
+            stats: outcomeStat,
+          }),
           this.#removeCurrentItem(),
           this.#updateQuizProgress(),
           this.#statsMap.delete(this.currentItem))
-        : this.#completeSubjectsInOrder || this.#w(results.passed);
+        : this.#completeSubjectsInOrder || this.#randomizeOrder(results.passed);
   }
   #updateStatsFromOutcome = (passed) => {
     const stat = this.#statsMap.get(this.currentItem);
@@ -125,12 +134,15 @@ export default class QuizQueue {
       this.#items.length + this.#currentSlice.length + this.#remainingIds.length
     );
   }
-  #w = (e) => {
-    const t = this.#items[0],
-      i = this.#items.slice(1),
-      s = (e, t) => Math.floor(Math.random() * (t - e + 1) + e),
-      n = s(e ? 0 : Math.ceil(i.length / 2), i.length);
-    i.splice(n, 0, t), (this.#items = i);
+  #randomizeOrder = (passed) => {
+    const firstItem = this.#items[0],
+      items = this.#items.slice(1),
+      getRandomInt = (a, b) => Math.floor(Math.random() * (b - a + 1) + a),
+      randomIndex = getRandomInt(
+        passed ? 0 : Math.ceil(items.length / 2),
+        items.length
+      );
+    items.splice(randomIndex, 0, firstItem), (this.#items = items);
   };
   #loadItems = () => {
     if (
