@@ -4,6 +4,12 @@ declare module "controllers/date_controller" {
   export default class extends Controller {
     static values: ValueDefinitionMap;
     /**
+     * The timeout ID for the timer.
+     */
+    timerId: number;
+    formatValue: string;
+    date: Date;
+    /**
      * Formats the initial date for the element.
      */
     connect(): void;
