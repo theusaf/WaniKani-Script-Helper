@@ -22,16 +22,31 @@ declare module "events/did_answer_question" {
     meaning: string;
   }
 
+  export interface AuxiliaryData {
+    type: string;
+    message: string;
+  }
+  export interface AuxiliaryReading extends AuxiliaryData {
+    reading: string;
+  }
+  export interface AuxiliaryMeaning extends AuxiliaryData {
+    meaning: string;
+  }
+
   export interface Subject {
     id: number;
-    readings: Reading[];
+    readings?: Reading[];
+    meanings: string[]; // verify this
     subject_category: string;
-    characters: string | Chactacters;
+    characters?: string | Chactacters;
     type: "Kanji" | "Vocabulary";
-    primary_reading_type: string;
-    onyomi: string[];
-    kunyomi: string[];
-    nanori: string[];
+    primary_reading_type?: string;
+    onyomi?: string[];
+    kunyomi?: string[];
+    nanori?: string[];
+    kanji?: string[];
+    auxiliary_meanings?: AuxiliaryMeaning[];
+    auxiliary_readings?: AuxiliaryReading[];
   }
 
   export interface SubjectWithStats {
