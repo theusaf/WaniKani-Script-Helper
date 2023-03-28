@@ -40,5 +40,6 @@ declare global {
 
   interface Window extends EventTarget {
     keyboardManager: KeyboardManager;
+    FrontChat(command: string): void;
   }
 }
