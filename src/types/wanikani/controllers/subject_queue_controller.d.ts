@@ -8,5 +8,4 @@ declare module "controllers/subject_queue_controller" {
     connect(): void;
     disconnect(): void;
   }
-
 }

@@ -1,6 +1,5 @@
-
 declare module "controllers/subject_slides_controller" {
-import AudioPlayerController from "controllers/audio_player_controller";
+  import AudioPlayerController from "controllers/audio_player_controller";
   import { Controller } from "@hotwired/stimulus";
   export default class extends Controller {
     static targets: string[];
@@ -20,5 +19,4 @@ import AudioPlayerController from "controllers/audio_player_controller";
     disconnect(): void;
     switchSlide(event: Event): void;
   }
-
 }
