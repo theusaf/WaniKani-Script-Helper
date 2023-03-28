@@ -14,5 +14,4 @@ declare module "controllers/lesson_modal_controller" {
      */
     disconnect(): void;
   }
-
 }

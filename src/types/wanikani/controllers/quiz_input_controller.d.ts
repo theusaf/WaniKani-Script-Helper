@@ -1,7 +1,6 @@
-
 declare module "controllers/quiz_input_controller" {
- import QuizUserSynonymsController from "controllers/quiz_user_synonyms_controller";
- import QuizQueueController from "controllers/quiz_queue_controller";
+  import QuizUserSynonymsController from "controllers/quiz_user_synonyms_controller";
+  import QuizQueueController from "controllers/quiz_queue_controller";
   import QuizQueue from "controllers/quiz_queue/queue";
   import { Controller } from "@hotwired/stimulus";
   export default class extends Controller {
