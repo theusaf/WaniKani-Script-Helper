@@ -14,5 +14,4 @@ declare module "controllers/quiz_statistics_controller" {
     connect(): void;
     disconnect(): void;
   }
-
 }
