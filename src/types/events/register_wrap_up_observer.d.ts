@@ -4,14 +4,12 @@ declare module "events/register_wrap_up_observer" {
       activate: () => void,
       deactivate: (observer: WKObserver) => void
     ) => void;
-    onUpdateCount: ({ currentCount: number }) => void;
-    onWrapUp: ({ isWrappingUp: number, currentCount: number }) => void;
+    onUpdateCount: (data: { currentCount: number }) => void;
+    onWrapUp: (options: { isWrappingUp: number; currentCount: number }) => void;
   }
 
   export default class RegisterWrapUpObserverEvent extends CustomEvent<WKObserver> {
-    constructor(options: {
-      observer: MutationObserver;
-    }): RegisterWrapUpObserverEvent;
+    constructor(options: { observer: MutationObserver });
     type: "registerWrapUpObserver";
     static newObserver(options: WKObserver): WKObserver;
   }

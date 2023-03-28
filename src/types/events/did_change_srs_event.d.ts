@@ -11,7 +11,7 @@ declare module "events/did_change_srs_event" {
   }
 
   export default class DidChangeSRSEvent extends CustomEvent<DidChangeSRSEventDetails> {
-    constructor(details: DidChangeSRSEventDetails): DidChangeSRSEvent;
+    constructor(details: DidChangeSRSEventDetails);
     type: "didChangeSRS";
   }
 }

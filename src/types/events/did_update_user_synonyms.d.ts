@@ -5,7 +5,7 @@ declare module "events/did_update_user_synonyms" {
   }
 
   export default class DidUpdateUserSynonymsEvent extends CustomEvent<DidUpdateUserSynonymsEventDetails> {
-    constructor(details: DidUpdateUserSynonymsEventDetails): ConnectionTimeout;
+    constructor(details: DidUpdateUserSynonymsEventDetails);
     type: "didUpdateUserSynonyms";
   }
 }

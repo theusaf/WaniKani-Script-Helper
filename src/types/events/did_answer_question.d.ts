@@ -54,7 +54,7 @@ declare module "events/did_answer_question" {
   }
 
   export default class DidAnswerQuestionEvent extends CustomEvent<DidAnswerQuestionEventDetails> {
-    constructor(details: DidAnswerQuestionEventDetails): ConnectionTimeout;
+    constructor(details: DidAnswerQuestionEventDetails);
     type: "didAnswerQuestion";
   }
 }

@@ -21,10 +21,6 @@ interface WaniKaniEvents {
 }
 
 declare global {
-  interface Window {
-    keyboardManager: KeyboardManager;
-  }
-
   interface EventTarget {
     addEventListener<K extends keyof WaniKaniEvents>(
       type: K,
@@ -39,5 +35,9 @@ declare global {
     dispatchEvent<K extends keyof WaniKaniEvents>(
       event: WaniKaniEvents[K]
     ): boolean;
+  }
+
+  interface Window extends EventTarget {
+    keyboardManager: KeyboardManager;
   }
 }
