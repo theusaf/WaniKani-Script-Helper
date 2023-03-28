@@ -1,9 +1,9 @@
-const getReadingsFromSubject = (e) => {
-  switch (e.type) {
+const getReadingsFromSubject = (subject) => {
+  switch (subject.type) {
     case "Kanji":
-      return e[e.primary_reading_type];
+      return subject[subject.primary_reading_type];
     case "Vocabulary":
-      return e.readings.map((e) => e.reading);
+      return subject.readings.map((e) => e.reading);
     default:
       return [];
   }

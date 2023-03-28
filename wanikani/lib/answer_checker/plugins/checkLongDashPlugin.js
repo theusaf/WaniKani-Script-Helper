@@ -26,12 +26,12 @@ const toHiragana = (n) => wanakanaToHiragana(n, { convertLongVowelMark: !1 }),
         : (a += toHiragana(n[o]));
     return a;
   };
-export default function checkLongDash(n, a, o) {
-  if ("reading" !== n || !o) return null;
-  const e = getReadingsFromSubject(o).find(
+export default function checkLongDash(questionType, answer, subject) {
+  if ("reading" !== questionType || !subject) return null;
+  const e = getReadingsFromSubject(subject).find(
     (n) =>
       -1 !== n.indexOf("\u30fc") &&
-      vowelsAreSimilar(convertDashToVowel(n), toHiragana(a), n)
+      vowelsAreSimilar(convertDashToVowel(n), toHiragana(answer), n)
   );
   return e
     ? `Try typing \u201c${toIME(e)}\u201d to get that long \u30fc.`

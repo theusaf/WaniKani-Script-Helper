@@ -27,6 +27,11 @@ declare module "events/did_answer_question" {
     readings: Reading[];
     subject_category: string;
     characters: string | Chactacters;
+    type: "Kanji" | "Vocabulary";
+    primary_reading_type: string;
+    onyomi: string[];
+    kunyomi: string[];
+    nanori: string[];
   }
 
   export interface SubjectWithStats {

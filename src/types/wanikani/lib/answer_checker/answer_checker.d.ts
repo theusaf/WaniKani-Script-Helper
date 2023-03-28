@@ -1,4 +1,4 @@
-declare module "lib/answer_checker" {
+declare module "lib/answer_checker/answer_checker" {
   import { QuestionAnswerResults, Subject } from "events/did_answer_question";
 
   export interface AnswerException {
