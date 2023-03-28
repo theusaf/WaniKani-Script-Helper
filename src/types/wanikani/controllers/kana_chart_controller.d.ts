@@ -1,5 +1,7 @@
-declare module "controllers/" {
-  import { Controller } from "@hotwired/stimulus";
+
+declare module "controllers/kana_chart_controller" {
+  import QuizInputController from "controllers/quiz_input_controller";
+import { Controller } from "@hotwired/stimulus";
   export default class extends Controller {
     static targets: string[];
     static classes: string[];
@@ -16,8 +18,8 @@ declare module "controllers/" {
     get tabContentTarget(): HTMLElement;
     get tabContentTargets(): HTMLElement[];
     get hasTabContentTarget(): boolean;
-    get quizInputOutlet(): unknown; // todo
-    get quizInputOutlets(): unknown[]; // todo
+    get quizInputOutlet(): QuizInputController;
+    get quizInputOutlets(): QuizInputController[];
     connect(): void;
     showTabContent(event: Event): void;
     sendCharacter(event: Event): void;
