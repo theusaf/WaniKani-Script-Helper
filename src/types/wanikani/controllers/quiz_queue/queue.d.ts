@@ -1,3 +1,5 @@
+import QuizAPI from "controllers/quiz_queue/quiz_api";
+
 declare module "controllers/quiz_queue/queue" {
   import {
     QuestionEventDetailsResults,
@@ -5,7 +7,7 @@ declare module "controllers/quiz_queue/queue" {
   } from "events/did_answer_question";
   export interface QueueConstructorParams {
     queue: Subject[];
-    api: unknown;
+    api: QuizAPI;
     remainingIds: number[];
     srsMap: unknown;
     /**
