@@ -1,9 +1,14 @@
 declare module "controllers/quiz_queue/cached_queue" {
+  export interface QueueHash<T = any> {
+    id: string;
+    [x: string | number]: T | any;
+  }
+
   /**
    * A map that stores data in session storage.
    * Used for storing quiz queue data.
    */
-  export default class CachedQueue {
+  export default class CachedQueue<T = any> {
     /**
      * Creates a new CachedQueue with the given key.
      *
@@ -17,7 +22,7 @@ declare module "controllers/quiz_queue/cached_queue" {
      * @param key
      * @param value
      */
-    set(key: string, value: any): Map<string, any>;
+    set(key: string, value: T): Map<string, T>;
 
     /**
      * Deletes a value from the queue.
@@ -36,12 +41,9 @@ declare module "controllers/quiz_queue/cached_queue" {
     /**
      * Returns the items in the queue as an array.
      */
-    get items(): [string, any][];
+    get items(): [string, T][];
 
-    get hashes(): {
-      [x: string | number]: any;
-      id: string;
-    }[];
+    get hashes(): QueueHash[];
 
     /**
      * Clears the queue.
@@ -53,6 +55,6 @@ declare module "controllers/quiz_queue/cached_queue" {
      *
      * @param callback
      */
-    executeAndCache(callback: () => any): any;
+    executeAndCache<E = any>(callback: () => E): E;
   }
 }

@@ -1,4 +1,5 @@
 declare module "events/did_answer_question" {
+  import { Stats } from "controllers/quiz_queue/cached_stats";
   export interface PronounciationSource {
     url: string;
     content_type: string;
@@ -30,14 +31,7 @@ declare module "events/did_answer_question" {
 
   export interface QuestionEventDetailsStats {
     subject: Subject;
-    stats: {
-      meaning: {
-        incorrect: number;
-      };
-      reading: {
-        incorrect: number;
-      };
-    };
+    stats: Stats;
   }
 
   export interface QuestionEventDetailsResults {

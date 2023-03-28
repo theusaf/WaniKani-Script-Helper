@@ -14,7 +14,7 @@ export default class QuizQueue {
   #r;
   #a;
   #u;
-  #h = new CachedStats();
+  #statsMap = new CachedStats();
   #o = 10;
   #c = 20;
   #m = 100;
@@ -46,7 +46,7 @@ export default class QuizQueue {
     if (0 === this.#d || (this.#r.wrappingUp && 0 === this.#i.length))
       return this.#t(), void this.#Q(0);
     this.currentItem = this.#i[0];
-    const t = this.#h.get(this.currentItem);
+    const t = this.#statsMap.get(this.currentItem);
     t.reading.complete ||
     (("meaning" === e || "meaningFirst" === this.#l) && !t.meaning.complete)
       ? (this.questionType = "meaning")
@@ -82,15 +82,15 @@ export default class QuizQueue {
           this.#a.updateSRS({ subject: this.currentItem, stats: i }),
           this.#v(),
           this.#Q(),
-          this.#h.delete(this.currentItem))
+          this.#statsMap.delete(this.currentItem))
         : this.#g || this.#w(t.passed);
   }
   #I = (e) => {
-    const t = this.#h.get(this.currentItem);
+    const t = this.#statsMap.get(this.currentItem);
     return (
       (t[this.questionType].complete = e),
       e || (t[this.questionType].incorrect += 1),
-      this.#h.set(this.currentItem, t),
+      this.#statsMap.set(this.currentItem, t),
       t
     );
   };
