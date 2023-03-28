@@ -1,8 +1,7 @@
 declare module "lib/keyboard_manager" {
-
   export interface HotKeyOptions {
-    key: string
-    callback: (event: KeyboardEvent) => void
+    key: string;
+    callback: (event: KeyboardEvent) => void;
   }
 
   /**
@@ -10,32 +9,31 @@ declare module "lib/keyboard_manager" {
    * which can be useful for different kinds of callbacks
    */
   export class KeyboardManager {
-
-    constructor(): KeyboardManager
+    constructor(): KeyboardManager;
 
     /**
      * Sets the modal mode to true.
      */
-    setModalMode(): void
+    setModalMode(): void;
 
     /**
      * Sets the modal mode to false.
      */
-    clearModalMode(): void
+    clearModalMode(): void;
 
     /**
      * Registers a callback for a hotkey.
      *
      * @param options The options for the listener
      */
-    registerHotKey(options: HotKeyOptions): void
+    registerHotKey(options: HotKeyOptions): void;
 
     /**
      * Unregisters the callback for a hotkey.
      *
      * @param options The options for the listener
      */
-    deregisterHotKey(options: HotKeyOptions): void
+    deregisterHotKey(options: HotKeyOptions): void;
 
     /**
      * Handles a hotkey event and executes all related callbacks.
@@ -43,8 +41,6 @@ declare module "lib/keyboard_manager" {
      * @param event The event to handle
      * @param key The key pressed
      */
-    handleHotKey(event: KeyboardEvent, key: string): void
-
+    handleHotKey(event: KeyboardEvent, key: string): void;
   }
-
 }

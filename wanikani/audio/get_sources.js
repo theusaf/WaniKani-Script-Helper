@@ -8,20 +8,20 @@ const newSource = (e) => {
     );
   },
   getSources = ({
-    subject: e,
+    subject: subject,
     questionType: r,
     answer: t,
     results: n,
     preferredVoiceActorId: o,
   }) => {
     let a = [];
-    if ("reading" === r && e.readings) {
-      let r = n.passed ? t : e.readings[0].reading,
-        i = e.readings.find((e) => e.reading === r);
+    if ("reading" === r && subject.readings) {
+      let r = n.passed ? t : subject.readings[0].reading,
+        i = subject.readings.find((e) => e.reading === r);
       if (
         (i ||
           ((r = toHiragana(r, { convertLongVowelMark: !1 })),
-          (i = e.readings.find((e) => e.reading === r))),
+          (i = subject.readings.find((e) => e.reading === r))),
         i)
       ) {
         const e = i.pronunciations.find((e) => e.actor.id === o);

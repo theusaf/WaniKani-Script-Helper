@@ -4,9 +4,9 @@ import DidChangeSRSEvent from "events/did_change_srs_event";
 import { KeyboardManager } from "lib/keyboard_manager";
 
 interface WaniKaniEvents {
-  "connectionTimeout": ConnectionTimeout;
-  "didAnswerQuestion": DidAnswerQuestionEvent;
-  "didChangeSRS": DidChangeSRSEvent;
+  connectionTimeout: ConnectionTimeout;
+  didAnswerQuestion: DidAnswerQuestionEvent;
+  didChangeSRS: DidChangeSRSEvent;
 }
 
 declare global {
@@ -29,5 +29,4 @@ declare global {
       event: WaniKaniEvents[K]
     ): boolean;
   }
-
 }

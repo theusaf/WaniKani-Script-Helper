@@ -3,7 +3,9 @@ class KeyboardManager {
   #data2;
   #modalMode = !1;
   constructor() {
-    (this.#data1 = {}), (this.#data2 = {}), window.addEventListener("keydown", this.#onKeyDown);
+    (this.#data1 = {}),
+      (this.#data2 = {}),
+      window.addEventListener("keydown", this.#onKeyDown);
   }
   setModalMode = () => {
     (this.#modalMode = !0), (this.#data2 = {});
@@ -13,18 +15,20 @@ class KeyboardManager {
   };
   registerHotKey = ({ key, callback }) => {
     const dataStorage = this.#modalMode ? this.#data2 : this.#data1;
-    (dataStorage[key] = dataStorage[key] || []), dataStorage[key].push(callback);
+    (dataStorage[key] = dataStorage[key] || []),
+      dataStorage[key].push(callback);
   };
   deregisterHotKey = ({ key: e, callback: a }) => {
     this.#removeCallback({ map: this.#data2, key: e, callback: a }),
       this.#removeCallback({ map: this.#data1, key: e, callback: a });
   };
   handleHotKey = (event, key) => {
-    ((Object.keys(this.#data2).length > 0 ? this.#data2 : this.#data1)[key] || []).forEach(
-      (callback) => {
-        callback(event);
-      }
-    );
+    (
+      (Object.keys(this.#data2).length > 0 ? this.#data2 : this.#data1)[key] ||
+      []
+    ).forEach((callback) => {
+      callback(event);
+    });
   };
   #onKeyDown = (e) => {
     /^(input|textarea)$/i.test(e.target.tagName) ||

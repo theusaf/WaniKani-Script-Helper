@@ -8,15 +8,8 @@
     "removeComments": false,
     "inlineSourceMap": true,
     "outFile": "./dist/index.user.js",
-    "lib": [
-      "ES2022",
-      "DOM"
-    ],
-    "typeRoots": [
-      "./src/types/**/*"
-    ]
+    "lib": ["ES2022", "DOM"],
+    "typeRoots": ["./src/types/**/*"]
   },
-  "include": [
-    "./src/**/*"
-  ]
+  "include": ["./src/**/*"]
 }
