@@ -1,27 +1,27 @@
 export default class CachedQueue {
-  #e;
-  #t;
-  constructor(e) {
-    (this.#e = new Map(JSON.parse(sessionStorage.getItem(e) || "[]"))),
-      (this.#t = e);
+  #map;
+  #key;
+  constructor(key) {
+    (this.#map = new Map(JSON.parse(sessionStorage.getItem(key) || "[]"))),
+      (this.#key = key);
   }
-  set = (e, t) => this.executeAndCache(() => this.#e.set(e, t));
-  delete = (e) => this.executeAndCache(() => this.#e.delete(e));
+  set = (e, t) => this.executeAndCache(() => this.#map.set(e, t));
+  delete = (e) => this.executeAndCache(() => this.#map.delete(e));
   get size() {
-    return this.#e.size;
+    return this.#map.size;
   }
   toJSON = () => this.items;
   get items() {
-    return Array.from(this.#e);
+    return Array.from(this.#map);
   }
   get hashes() {
-    return this.items.map(([e, t]) => Object.assign({ id: e }, t));
+    return this.items.map(([key, val]) => Object.assign({ id: key }, val));
   }
   reset = () => {
-    this.executeAndCache(() => this.#e.clear());
+    this.executeAndCache(() => this.#map.clear());
   };
-  executeAndCache = (e) => {
-    const t = e();
-    return sessionStorage.setItem(this.#t, JSON.stringify(this)), t;
+  executeAndCache = (callback) => {
+    const data = callback();
+    return sessionStorage.setItem(this.#key, JSON.stringify(this)), data;
   };
 }
