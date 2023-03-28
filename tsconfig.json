@@ -1,6 +1,18 @@
 {
   "compilerOptions": {
-
+    "module": "ES2022",
+    "target": "ES2022",
+    "moduleResolution": "node16",
+    "skipLibCheck": true,
+    "noImplicitAny": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "inlineSourceMap": true,
+    "outFile": "./dist/index.user.js",
+    "lib": [
+      "ES2022",
+      "DOM"
+    ]
   },
   "include": [
     "src"
