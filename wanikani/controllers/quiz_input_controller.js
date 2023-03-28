@@ -22,7 +22,10 @@ export default class extends Controller {
   #t;
   initialize() {
     (this.#n = !0),
-      window.addEventListener("willShowNextQuestion", this.#onWillShowNextQuestion),
+      window.addEventListener(
+        "willShowNextQuestion",
+        this.#onWillShowNextQuestion
+      ),
       this.formTarget.addEventListener("submit", (e) => {
         e.stopPropagation(), e.preventDefault();
       });
@@ -37,7 +40,10 @@ export default class extends Controller {
       this.inputTarget.focus();
   }
   disconnect() {
-    window.removeEventListener("willShowNextQuestion", this.#onWillShowNextQuestion),
+    window.removeEventListener(
+      "willShowNextQuestion",
+      this.#onWillShowNextQuestion
+    ),
       window.keyboardManager.deregisterHotKey({
         key: "Enter",
         callback: this.#a,

@@ -14,11 +14,17 @@ export default class extends Controller {
     this.characterImageTemplate = this.characterImageTarget;
   }
   connect() {
-    window.addEventListener("willShowNextQuestion", this.#onWillShowNextQuestion),
+    window.addEventListener(
+      "willShowNextQuestion",
+      this.#onWillShowNextQuestion
+    ),
       window.addEventListener("didChangeSRS", this.#t);
   }
   disconnect() {
-    window.removeEventListener("willShowNextQuestion", this.#onWillShowNextQuestion),
+    window.removeEventListener(
+      "willShowNextQuestion",
+      this.#onWillShowNextQuestion
+    ),
       window.removeEventListener("didChangeSRS", this.#t);
   }
   #onWillShowNextQuestion = (e) => {

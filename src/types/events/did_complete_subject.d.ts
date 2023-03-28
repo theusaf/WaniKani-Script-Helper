@@ -5,7 +5,9 @@ declare module "events/did_complete_subject" {
     subjectWithStats: QuestionEventDetailsStats;
   }
   export default class DidCompleteSubjectEvent extends CustomEvent<DidCompleteSubjectEventDetails> {
-    constructor(details: DidCompleteSubjectEventDetails): DidCompleteSubjectEvent;
+    constructor(
+      details: DidCompleteSubjectEventDetails
+    ): DidCompleteSubjectEvent;
     type: "didCompleteSubject";
   }
 }

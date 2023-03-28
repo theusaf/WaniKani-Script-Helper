@@ -16,12 +16,21 @@ export default class extends Controller {
     this.audioTarget.addEventListener("ended", this.#onAudioEnded);
   }
   connect() {
-    window.addEventListener("willShowNextQuestion", this.#onWillShowNextQuestion),
+    window.addEventListener(
+      "willShowNextQuestion",
+      this.#onWillShowNextQuestion
+    ),
       window.addEventListener("didAnswerQuestion", this.#onDidAnswerQuestion);
   }
   disconnect() {
-    window.removeEventListener("willShowNextQuestion", this.#onWillShowNextQuestion),
-      window.removeEventListener("didAnswerQuestion", this.#onDidAnswerQuestion),
+    window.removeEventListener(
+      "willShowNextQuestion",
+      this.#onWillShowNextQuestion
+    ),
+      window.removeEventListener(
+        "didAnswerQuestion",
+        this.#onDidAnswerQuestion
+      ),
       this.#onAudioEnded();
   }
   playButtonTargetConnected(t) {
@@ -40,7 +49,10 @@ export default class extends Controller {
     this.audioTarget.replaceChildren(...t),
       this.audioTarget.load(),
       (this.#isEnabled = t.length > 0),
-      this.playButtonTarget.classList.toggle(this.disabledClass, !this.#isEnabled),
+      this.playButtonTarget.classList.toggle(
+        this.disabledClass,
+        !this.#isEnabled
+      ),
       (this.playButtonTarget.dataset.loaded = !0);
   };
   #onWillShowNextQuestion = () => {
@@ -62,7 +74,10 @@ export default class extends Controller {
         preferredVoiceActorId: this.preferredVoiceActorIdValue,
       });
     this.#loadAudio(sources),
-      this.#isEnabled && this.autoPlayValue && t.detail.results.passed && this.play();
+      this.#isEnabled &&
+        this.autoPlayValue &&
+        t.detail.results.passed &&
+        this.play();
   };
   play = () => {
     !this.#isPlaying &&
