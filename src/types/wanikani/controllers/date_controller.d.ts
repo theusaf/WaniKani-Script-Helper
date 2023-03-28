@@ -3,11 +3,13 @@ declare module "controllers/date_controller" {
   import { ValueDefinitionMap } from "@hotwired/stimulus/dist/types/core/value_properties";
   export default class extends Controller {
     static values: ValueDefinitionMap;
+    get formatValue(): string;
+    set formatValue(value: string);
+    get hasFormatValue(): boolean;
     /**
      * The timeout ID for the timer.
      */
     timerId: number;
-    formatValue: string;
     date: Date;
     /**
      * Formats the initial date for the element.

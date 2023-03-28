@@ -2,7 +2,9 @@ declare module "controllers/hotkeys_controller" {
   import { Controller } from "@hotwired/stimulus";
   export default class extends Controller {
     static classes: string[];
-    menuOpenClass: string;
+    get menuOpenClass(): string;
+    get menuOpenClasses(): string;
+    get hasMenuOpenClass(): boolean;
     /**
      * Registers the controller hotkey.
      */

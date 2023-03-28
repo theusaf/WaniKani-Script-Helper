@@ -5,6 +5,25 @@ declare module "controllers/additional_content_controller" {
     static targets: string[];
     static classes: string[];
 
+    get openClass(): string;
+    get openClasses(): string;
+    get hasOpenClass(): boolean;
+    get toggleDisabledClass(): string;
+    get toggleDisabledClasses(): string;
+    get hasToggleDisabledClass(): boolean;
+    get toggleOpenClass(): string;
+    get toggleOpenClasses(): string;
+    get hasToggleOpenClass(): boolean;
+    get contentTarget(): HTMLElement;
+    get contentTargets(): HTMLElement[];
+    get hasContentTarget(): boolean;
+    get contentContainerTarget(): HTMLElement;
+    get contentContainerTargets(): HTMLElement[];
+    get hasContentContainerTarget(): boolean;
+    get contentToggleTarget(): HTMLElement;
+    get contentToggleTargets(): HTMLElement[];
+    get hasContentToggleTarget(): boolean;
+
     /**
      * Registers listeners and hotkeys.
      */

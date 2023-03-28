@@ -50,7 +50,7 @@ declare module "events/did_answer_question" {
   }
 
   export interface DidAnswerQuestionEventDetails {
-    subjectWithStats: SubjectWithStats; // todo
+    subjectWithStats: SubjectWithStats;
     questionType: "reading" | "meaning";
     answer: string;
     results: QuestionAnswerResults;

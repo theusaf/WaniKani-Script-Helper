@@ -6,6 +6,25 @@ declare module "controllers/audio_player_controller" {
     static classes: string[];
     static values: ValueDefinitionMap;
 
+    get playingClass(): string;
+    get playingClasses(): string;
+    get hasPlayingClass(): boolean;
+    get stoppedClass(): string;
+    get stoppedClasses(): string;
+    get hasStoppedClass(): boolean;
+    get controlClass(): string;
+    get controlClasses(): string;
+    get hasControlClass(): boolean;
+    get autoPlayValue(): boolean;
+    set autoPlayValue(value: boolean);
+    get hasAutoPlayValue(): boolean;
+    get audioTarget(): HTMLAudioElement;
+    get audioTargets(): HTMLAudioElement[];
+    get hasAudioTarget(): boolean;
+    get controlTarget(): HTMLElement;
+    get controlTargets(): HTMLElement[];
+    get hasControlTarget(): boolean;
+
     playing: boolean;
     initialize(): void;
     /**

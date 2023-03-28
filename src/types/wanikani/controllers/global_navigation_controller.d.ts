@@ -5,7 +5,15 @@ declare module "controllers/global_navigation_controller" {
     static classes: string[];
     isDesktopView: boolean;
     isOpen: boolean;
-    openClass: string;
+    get openClass(): string;
+    get openClasses(): string;
+    get hasOpenClass(): boolean;
+    get toggleTarget(): HTMLElement;
+    get toggleTargets(): HTMLElement[];
+    get hasToggleTarget(): boolean;
+    get navigationContentTarget(): HTMLElement;
+    get navigationContentTargets(): HTMLElement[];
+    get hasNavigationContentTarget(): boolean;
     initialize(): void;
     connect(): void;
     disconnect(): void;

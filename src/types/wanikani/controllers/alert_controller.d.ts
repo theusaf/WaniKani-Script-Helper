@@ -3,6 +3,10 @@ declare module "controllers/alert_controller" {
   export default class extends Controller {
     static classes: string[];
 
+    get openClass(): string;
+    get openClasses(): string;
+    get hasOpenClass(): boolean;
+
     /**
      * Close the alert.
      *

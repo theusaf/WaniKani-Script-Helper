@@ -10,6 +10,8 @@ declare module "controllers/body_controller" {
      * Unfreezes the body.
      */
     unfreeze(): void;
-    frozenClass: string;
+    get frozenClass(): string;
+    get frozenClasses(): string;
+    get hasFrozenClass(): boolean;
   }
 }

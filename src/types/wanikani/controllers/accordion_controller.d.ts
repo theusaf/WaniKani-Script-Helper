@@ -7,6 +7,10 @@ declare module "controllers/accordion_controller" {
   export default class extends Controller {
     static targets: string[];
 
+    get containerTarget(): HTMLElement;
+    get containerTargets(): HTMLElement[];
+    get hasContainerTarget(): boolean;
+
     toggle(): void;
   }
 }
