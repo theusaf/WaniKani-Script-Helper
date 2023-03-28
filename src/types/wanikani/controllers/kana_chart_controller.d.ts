@@ -1,7 +1,6 @@
-
 declare module "controllers/kana_chart_controller" {
   import QuizInputController from "controllers/quiz_input_controller";
-import { Controller } from "@hotwired/stimulus";
+  import { Controller } from "@hotwired/stimulus";
   export default class extends Controller {
     static targets: string[];
     static classes: string[];

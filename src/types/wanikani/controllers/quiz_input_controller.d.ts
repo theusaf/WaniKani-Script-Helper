@@ -1,7 +1,7 @@
-
 declare module "controllers/quiz_input_controller" {
+  import QuizQueueController from "controllers/quiz_queue_controller";
   import QuizQueue from "controllers/quiz_queue/queue";
-import { Controller } from "@hotwired/stimulus";
+  import { Controller } from "@hotwired/stimulus";
   export default class extends Controller {
     static targets: string[];
     static outlets: string[];
@@ -32,8 +32,8 @@ import { Controller } from "@hotwired/stimulus";
     get formTarget(): HTMLFormElement;
     get formTargets(): HTMLFormElement[];
     get hasFormTarget(): boolean;
-    get quizQueueOutlet(): unknown; // todo
-    get quizQueueOutlets(): unknown[]; // todo
+    get quizQueueOutlet(): QuizQueueController;
+    get quizQueueOutlets(): QuizQueueController[];
     get quizQueueOutletElement(): HTMLElement;
     get quizQueueOutletElements(): HTMLElement[];
     get hasQuizQueueOutlet(): boolean;
@@ -69,5 +69,4 @@ import { Controller } from "@hotwired/stimulus";
     appendKanaCharacter(char: string): void;
     deleteCharacter(): void;
   }
-
 }
