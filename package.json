@@ -1,6 +1,6 @@
 {
-  "name": "wanikani-script-helper",
-  "version": "1.0.0",
+  "name": "wkhf",
+  "version": "0.0.0",
   "description": "A userscript helper for WaniKani",
   "main": "dist/index.user.js",
   "scripts": {
