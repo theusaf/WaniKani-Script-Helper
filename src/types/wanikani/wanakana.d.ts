@@ -1,12 +1,12 @@
 declare module "wanakana" {
-  export const ROMANIZATIONS = {
-    HEPBURN: "hepburn",
+  export const ROMANIZATIONS: {
+    HEPBURN: "hepburn";
   };
-  export const TO_KANA_METHODS = {
-    HIRAGANA: "toHiragana",
-    KATAKANA: "toKatakana",
+  export const TO_KANA_METHODS: {
+    HIRAGANA: "toHiragana";
+    KATAKANA: "toKatakana";
   };
-  export const VERSION: string; // 5.1.0
+  export const VERSION: string;
 
   export interface WanaKanaOptions {
     useObsoleteKana?: boolean;
@@ -25,9 +25,9 @@ declare module "wanakana" {
    * @param debug Whether to log debug messages to the console
    */
   export function bind(
-    element: HTMLInputElement | HTMLTextAreaElement = {},
-    options: WanaKanaOptions = {},
-    debug: boolean = false
+    element?: HTMLInputElement | HTMLTextAreaElement,
+    options?: WanaKanaOptions,
+    debug?: boolean
   ): void;
 
   /**
@@ -38,7 +38,7 @@ declare module "wanakana" {
    */
   export function unbind(
     element: HTMLInputElement | HTMLTextAreaElement,
-    debug: boolean = false
+    debug?: boolean
   ): void;
 
   /**
@@ -46,7 +46,7 @@ declare module "wanakana" {
    *
    * @param text The text to check
    */
-  export function isHiragana(text: string = ""): boolean;
+  export function isHiragana(text?: string): boolean;
 
   /**
    * Determines if a string contains Japanese characters.
@@ -54,28 +54,28 @@ declare module "wanakana" {
    * @param text The text to check
    * @param alt A separate regex to use in addition to the default
    */
-  export function isJapanese(text: string = "", alt?: RegExp): boolean;
+  export function isJapanese(text?: string, alt?: RegExp): boolean;
 
   /**
    * Determines if a string is all katakana and hiragana.
    *
    * @param text The text to check
    */
-  export function isKana(text: string = ""): boolean;
+  export function isKana(text?: string): boolean;
 
   /**
    * Determines if a string is all katakana.
    *
    * @param text The text to check
    */
-  export function isHiragana(text: string = ""): boolean;
+  export function isHiragana(text?: string): boolean;
 
   /**
    * Determines if a string is all katakana.
    *
    * @param text The text to check
    */
-  export function isKatakana(text: string = ""): boolean;
+  export function isKatakana(text?: string): boolean;
 
   export interface IsMixedOptions {
     passKanji?: boolean;
@@ -86,10 +86,7 @@ declare module "wanakana" {
    * @param text The text to check
    * @param options Options to allow kanji characters for consideration
    */
-  export function isMixed(
-    text: string = "",
-    options: IsMixedOptions = { passKanji: true }
-  ): boolean;
+  export function isMixed(text?: string, options?: IsMixedOptions): boolean;
 
   /**
    * Determines if a string is all latin characters.
@@ -97,7 +94,7 @@ declare module "wanakana" {
    * @param text The text to check
    * @param alt A separate regex to use in addition to the default
    */
-  export function isRomaji(text: string = "", alt?: RegExp): boolean;
+  export function isRomaji(text?: string, alt?: RegExp): boolean;
 
   export interface StripOkuriganaOptions {
     leading?: boolean;
@@ -110,11 +107,8 @@ declare module "wanakana" {
    * @param options Options to control how okurigana is stripped
    */
   export function stripOkurigana(
-    text: string = "",
-    options: StripOkuriganaOptions = {
-      leading: false,
-      matchKanji: "",
-    }
+    text?: string,
+    options?: StripOkuriganaOptions
   ): string;
 
   /**
@@ -123,10 +117,7 @@ declare module "wanakana" {
    * @param text The text to convert
    * @param options Options to control the conversion
    */
-  export function toHiragana(
-    text: string = "",
-    options: WanaKanaOptions = {}
-  ): string;
+  export function toHiragana(text?: string, options?: WanaKanaOptions): string;
 
   /**
    * Converts romaji and hiragana to katakana.
@@ -134,10 +125,7 @@ declare module "wanakana" {
    * @param text The text to convert
    * @param options Options to control the conversion
    */
-  export function toKatakana(
-    text: string = "",
-    options: WanaKanaOptions = {}
-  ): string;
+  export function toKatakana(text?: string, options?: WanaKanaOptions): string;
 
   /**
    * Converts romaji to hiragana or katakana.
@@ -147,8 +135,8 @@ declare module "wanakana" {
    * @param mergeDefaultOptions Whether to merge the default options with the provided options
    */
   export function toKana(
-    text: string = "",
-    options: WanaKanaOptions = {},
+    text?: string,
+    options?: WanaKanaOptions,
     mergeDefaultOptions?: boolean
   ): string;
 
@@ -165,8 +153,8 @@ declare module "wanakana" {
    * @param map (I don't know exactly what this is)
    */
   export function toRomaji(
-    text: string = "",
-    options: WanaKanaOptions = {},
+    text?: string,
+    options?: WanaKanaOptions,
     map?: object
   ): string;
 
@@ -193,7 +181,7 @@ declare module "wanakana" {
    *
    * @param text The text to tokenize
    */
-  export function tokenize(text: string = ""): string[];
+  export function tokenize(text?: string): string[];
   /**
    * Converts a string into an array of tokens.
    *
@@ -201,34 +189,7 @@ declare module "wanakana" {
    * @param options Options to control the tokenization
    */
   export function tokenize(
-    text: string = "",
-    options: TokenizeOptions = {
-      detailed: true,
-    }
-  ): DetailedTokenizeResult[];
-  /**
-   * Converts a string into an array of tokens.
-   *
-   * @param text The text to tokenize
-   * @param options Options to control the tokenization
-   */
-  export function tokenize(
-    text: string = "",
-    options: TokenizeOptions = {
-      compact: true,
-    }
-  ): string[];
-  /**
-   * Converts a string into an array of tokens.
-   *
-   * @param text The text to tokenize
-   * @param options Options to control the tokenization
-   */
-  export function tokenize(
-    text: string = "",
-    options: TokenizeOptions = {
-      compact: true,
-      detailed: true,
-    }
-  ): CompactTokenizeResult[];
+    text?: string,
+    options?: TokenizeOptions
+  ): DetailedTokenizeResult[] | CompactTokenizeResult[];
 }

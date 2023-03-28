@@ -9,7 +9,7 @@ declare module "lib/keyboard_manager" {
    * which can be useful for different kinds of callbacks
    */
   export class KeyboardManager {
-    constructor(): KeyboardManager;
+    constructor();
 
     /**
      * Sets the modal mode to true.
