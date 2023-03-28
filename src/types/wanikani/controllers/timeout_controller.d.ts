@@ -5,5 +5,4 @@ declare module "controllers/timeout_controller" {
     disconnect(): void;
     showConnectionTimeout(): void;
   }
-
 }

@@ -1,7 +1,6 @@
-
 declare module "controllers/truncating_input_controller" {
- import { ValueDefinitionMap } from "@hotwired/stimulus/dist/types/core/value_properties";
- import { Controller } from "@hotwired/stimulus";
+  import { ValueDefinitionMap } from "@hotwired/stimulus/dist/types/core/value_properties";
+  import { Controller } from "@hotwired/stimulus";
   export default class extends Controller {
     static targets: string[];
     static values: ValueDefinitionMap;
@@ -24,5 +23,4 @@ declare module "controllers/truncating_input_controller" {
      */
     truncateText(): void;
   }
-
 }

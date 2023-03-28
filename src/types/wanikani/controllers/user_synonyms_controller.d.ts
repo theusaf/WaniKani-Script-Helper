@@ -1,7 +1,6 @@
-
 declare module "controllers/user_synonyms_controller" {
   import { ValueDefinitionMap } from "@hotwired/stimulus/dist/types/core/value_properties";
-import { Controller } from "@hotwired/stimulus";
+  import { Controller } from "@hotwired/stimulus";
   export default class extends Controller {
     static targets: string[];
     static values: ValueDefinitionMap;
@@ -13,5 +12,4 @@ import { Controller } from "@hotwired/stimulus";
     get hasSubjectIdValue(): boolean;
     connect(): void;
   }
-
 }
