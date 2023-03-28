@@ -35,8 +35,17 @@ declare module "events/did_answer_question" {
   }
 
   export interface QuestionAnswerResults {
+    /**
+     * Whether the answer was correct.
+     */
     passed: boolean;
+    /**
+     * Whether the answer was an exact match.
+     */
     accurate: boolean;
+    /**
+     * Whether there were multiple possible answers.
+     */
     multipleAnswers: boolean;
   }
 
