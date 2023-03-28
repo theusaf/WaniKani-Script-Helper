@@ -21,25 +21,71 @@ interface WaniKaniEvents {
   willOpenContent: CustomEvent;
 }
 
-declare global {
-  interface EventTarget {
-    addEventListener<K extends keyof WaniKaniEvents>(
-      type: K,
-      listener: (this: EventTarget, ev: WaniKaniEvents[K]) => void,
-      options?: boolean | AddEventListenerOptions
-    ): void;
-    removeEventListener<K extends keyof WaniKaniEvents>(
-      type: K,
-      listener: (this: EventTarget, ev: WaniKaniEvents[K]) => void,
-      options?: boolean | EventListenerOptions
-    ): void;
-    dispatchEvent<K extends keyof WaniKaniEvents>(
-      event: WaniKaniEvents[K]
-    ): boolean;
-  }
+export interface Events {
+  /**
+   * Fired when the connection is lost.
+   */
+  ConnectionTimeout: "connectionTimeout";
+  /**
+   * Fired when a question is answered.
+   */
+  QuestionAnswered: "didAnswerQuestion";
+  /**
+   * Fired when a subject is completed.
+   */
+  SubjectCompleted: "didCompleteSubject";
+  /**
+   * Fired when the SRS level of a subject changes.
+   */
+  SRSChanged: "didChangeSRS";
+  /**
+   * Fired when the user's synonyms are updated.
+   */
+  UserSynonymsUpdated: "didUpdateUserSynonyms";
+  /**
+   * Fired when a wrap-up observer is registered.
+   */
+  WrapUpObserverRegistration: "registerWrapUpObserver";
+  /**
+   * Fired when the quiz progress is updated.
+   */
+  QuizProgressUpdated: "updateQuizProgress";
+  /**
+   * Fired when the next question is about to be displayed.
+   */
+  NextQuestionWillDisplay: "willShowNextQuestion";
+  /**
+   * Fired when audio is about to play.
+   */
+  AudioWillPlay: "audioWillPlay";
+  /**
+   * Fired when content is about to be opened.
+   */
+  ContentWillOpen: "willOpenContent";
+}
 
-  interface Window extends EventTarget {
+export type EventListenerCallback<K extends keyof WaniKaniEvents> = (
+  event: WaniKaniEvents[K]
+) => void;
+
+export interface WKHF {
+  version: string;
+  Events: Events;
+  addEventListener<K extends keyof WaniKaniEvents>(
+    event: K,
+    listener: EventListenerCallback<K>
+  ): void;
+  removeEventListener<K extends keyof WaniKaniEvents>(
+    event: K,
+    listener: EventListenerCallback<K>
+  ): void;
+}
+
+declare global {
+  interface GlobalEventHandlersEventMap extends WaniKaniEvents {}
+  interface Window {
     keyboardManager: KeyboardManager;
     FrontChat(command: string): void;
+    wkhf: WKHF;
   }
 }
