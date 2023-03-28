@@ -31,5 +31,4 @@ declare module "controllers/quiz_header_controller" {
     connect(): void;
     disconnect(): void;
   }
-
 }
