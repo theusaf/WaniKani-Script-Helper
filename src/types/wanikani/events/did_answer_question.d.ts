@@ -29,22 +29,22 @@ declare module "events/did_answer_question" {
     characters: string | Chactacters;
   }
 
-  export interface QuestionEventDetailsStats {
+  export interface SubjectWithStats {
     subject: Subject;
     stats: Stats;
   }
 
-  export interface QuestionEventDetailsResults {
+  export interface QuestionAnswerResults {
     passed: boolean;
     accurate: boolean;
     multipleAnswers: boolean;
   }
 
   export interface DidAnswerQuestionEventDetails {
-    subjectWithStats: QuestionEventDetailsStats; // todo
+    subjectWithStats: SubjectWithStats; // todo
     questionType: "reading" | "meaning";
     answer: string;
-    results: QuestionEventDetailsResults;
+    results: QuestionAnswerResults;
   }
 
   export default class DidAnswerQuestionEvent extends CustomEvent<DidAnswerQuestionEventDetails> {

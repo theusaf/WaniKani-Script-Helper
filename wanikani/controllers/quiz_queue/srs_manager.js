@@ -1,6 +1,6 @@
 import DidChangeSRSEvent from "events/did_change_srs_event";
 export default class SRSManager {
-  #e;
+  srsMap;
   static textForLevel(e) {
     switch (!0) {
       case e > 0 && e <= 4:
@@ -17,28 +17,31 @@ export default class SRSManager {
         return e;
     }
   }
-  constructor(e) {
-    this.#e = e;
+  constructor(srsMap) {
+    this.srsMap = srsMap;
   }
-  updateSRS({ subject: e, stats: t }) {
-    if (!this.#e.has(e.id)) return;
-    const n = this.#e.get(e.id),
-      r = t.meaning.incorrect + t.reading.incorrect;
-    if (0 === r)
-      console.log(n, SRSManager.textForLevel(n + 1)),
+  updateSRS({ subject: subject, stats: stats }) {
+    if (!this.srsMap.has(subject.id)) return;
+    const srsLevel = this.srsMap.get(subject.id),
+      totalIncorrect = stats.meaning.incorrect + stats.reading.incorrect;
+    if (0 === totalIncorrect)
+      console.log(srsLevel, SRSManager.textForLevel(srsLevel + 1)),
         window.dispatchEvent(
           new DidChangeSRSEvent({
             wentUp: !0,
-            newLevelText: SRSManager.textForLevel(n + 1),
+            newLevelText: SRSManager.textForLevel(srsLevel + 1),
           })
         );
     else {
-      const e = n >= 5 ? 2 : 1,
-        t = Math.max(1, n - e * Math.round(r / 2));
+      const resetLevel = srsLevel >= 5 ? 2 : 1,
+        newLevel = Math.max(
+          1,
+          srsLevel - resetLevel * Math.round(totalIncorrect / 2)
+        );
       window.dispatchEvent(
         new DidChangeSRSEvent({
           wentUp: !1,
-          newLevelText: SRSManager.textForLevel(t),
+          newLevelText: SRSManager.textForLevel(newLevel),
         })
       );
     }

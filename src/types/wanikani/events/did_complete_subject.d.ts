@@ -1,7 +1,7 @@
 declare module "events/did_complete_subject" {
-  import { QuestionEventDetailsStats } from "events/did_answer_question";
+  import { SubjectWithStats } from "events/did_answer_question";
   export interface DidCompleteSubjectEventDetails {
-    subjectWithStats: QuestionEventDetailsStats;
+    subjectWithStats: SubjectWithStats;
   }
   export default class DidCompleteSubjectEvent extends CustomEvent<DidCompleteSubjectEventDetails> {
     constructor(details: DidCompleteSubjectEventDetails);

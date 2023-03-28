@@ -1,14 +1,11 @@
-import {
-  QuestionEventDetailsResults,
-  Subject,
-} from "events/did_answer_question";
+import { QuestionAnswerResults, Subject } from "events/did_answer_question";
 
 declare module "audio/get_sources" {
   export interface GetSourcesParams {
     subject: Subject;
     questionType: "meaning" | "reading";
     answer: string;
-    results: QuestionEventDetailsResults;
+    results: QuestionAnswerResults;
     preferredVoiceActorId: number;
   }
 

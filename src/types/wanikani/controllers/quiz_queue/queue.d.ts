@@ -1,15 +1,14 @@
-import QuizAPI from "controllers/quiz_queue/quiz_api";
-
 declare module "controllers/quiz_queue/queue" {
-  import {
-    QuestionEventDetailsResults,
-    Subject,
-  } from "events/did_answer_question";
+  import { QuestionAnswerResults, Subject } from "events/did_answer_question";
+  import QuizAPI from "controllers/quiz_queue/quiz_api";
+
+  export type SRSMap = Map<number, number>;
+
   export interface QueueConstructorParams {
     queue: Subject[];
     api: QuizAPI;
     remainingIds: number[];
-    srsMap: unknown;
+    srsMap: SRSMap;
     /**
      * Whether or not to complete subjects in order.
      */
@@ -40,6 +39,6 @@ declare module "controllers/quiz_queue/queue" {
      * @param answer
      * @param results
      */
-    submitAnswer(answer: string, results: QuestionEventDetailsResults): void;
+    submitAnswer(answer: string, results: QuestionAnswerResults): void;
   }
 }
