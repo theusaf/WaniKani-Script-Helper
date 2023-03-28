@@ -106,24 +106,30 @@ export default class extends Controller {
         void this.inputTarget.focus()
       );
     this.#u();
-    let e = this.inputTarget.value.trim();
+    let inputValue = this.inputTarget.value.trim();
     if (
       ("reading" === this.currentQuestionType &&
-        ((e = normalizeReadingResponse(e)), (this.inputTarget.value = e)),
-      !questionTypeAndResponseMatch(this.currentQuestionType, e) ||
-        0 == e.length)
+        ((inputValue = normalizeReadingResponse(inputValue)),
+        (this.inputTarget.value = inputValue)),
+      !questionTypeAndResponseMatch(this.currentQuestionType, inputValue) ||
+        0 == inputValue.length)
     )
       return void this.#h();
-    const t = this.quizUserSynonymsOutlet.synonymsForSubjectId(
+    const synonyms = this.quizUserSynonymsOutlet.synonymsForSubjectId(
         this.currentSubject.id
       ),
-      n = this.#e.evaluate(this.currentQuestionType, e, this.currentSubject, t);
+      n = this.#e.evaluate(
+        this.currentQuestionType,
+        inputValue,
+        this.currentSubject,
+        synonyms
+      );
     n.exception
       ? (this.#h(), this.#c(n.exception))
       : ((this.#n = !1),
-        (this.#t = e),
+        (this.#t = inputValue),
         this.inputContainerTarget.setAttribute("correct", n.passed),
-        this.quizQueueOutlet.submitAnswer(e, n));
+        this.quizQueueOutlet.submitAnswer(inputValue, n));
   }
   #onWillShowNextQuestion = (e) => {
     (this.currentQuestionType = e.detail.questionType),

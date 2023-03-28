@@ -118,17 +118,30 @@ const evaluators = {
   KanaVocabulary: { meaning: meaningChecker },
 };
 export default class AnswerChecker {
-  evaluate(e, n, i, t) {
-    let a = normalizeResponse(n);
-    const r = (0, evaluators[i.type][e])(a, i, t);
-    if (((r.passed && !r.accurate) || !r.passed) && !isInSynonyms(e, n, t)) {
-      const t = this.evaluatePlugins(e, n, i, r);
-      if (t) return { exception: t };
+  evaluate(questionType, answer, subject, synonyms) {
+    let a = normalizeResponse(answer);
+    const answerResult = (0, evaluators[subject.type][questionType])(
+      a,
+      subject,
+      synonyms
+    );
+    if (
+      ((answerResult.passed && !answerResult.accurate) ||
+        !answerResult.passed) &&
+      !isInSynonyms(questionType, answer, synonyms)
+    ) {
+      const exception = this.evaluatePlugins(
+        questionType,
+        answer,
+        subject,
+        answerResult
+      );
+      if (exception) return { exception: exception };
     }
-    return r;
+    return answerResult;
   }
-  evaluatePlugins(e, n, i, t) {
-    const a = [
+  evaluatePlugins(questionType, answer, subject, answerResult) {
+    const plugins = [
       checkSingleKanjiVocab,
       checkTransliterated,
       checkWarningList,
@@ -138,9 +151,9 @@ export default class AnswerChecker {
       checkSmallHiragana,
       checkN,
     ];
-    for (let r = 0; r < a.length; r += 1) {
-      const c = a[r](e, n, i, t);
-      if (c) return c;
+    for (let i = 0; i < plugins.length; i += 1) {
+      const result = plugins[i](questionType, answer, subject, answerResult);
+      if (result) return result;
     }
     return null;
   }
