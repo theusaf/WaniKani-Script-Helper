@@ -16,12 +16,20 @@ declare module "events/did_answer_question" {
     pronounciations: Pronounciation[];
   }
 
+  export interface Chactacters {
+    url: string;
+    meaning: string;
+  }
+
+  export interface Subject {
+    id: number;
+    readings: Reading[];
+    subject_category: string;
+    characters: string | Chactacters;
+  }
+
   export interface QuestionEventDetailsStats {
-    subject: {
-      id: number;
-      readings: Reading[];
-      subject_category: string;
-    };
+    subject: Subject;
     stats: {
       meaning: {
         incorrect: number;

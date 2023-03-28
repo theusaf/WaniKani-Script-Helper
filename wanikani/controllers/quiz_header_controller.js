@@ -14,30 +14,30 @@ export default class extends Controller {
     this.characterImageTemplate = this.characterImageTarget;
   }
   connect() {
-    window.addEventListener("willShowNextQuestion", this.#e),
+    window.addEventListener("willShowNextQuestion", this.#onWillShowNextQuestion),
       window.addEventListener("didChangeSRS", this.#t);
   }
   disconnect() {
-    window.removeEventListener("willShowNextQuestion", this.#e),
+    window.removeEventListener("willShowNextQuestion", this.#onWillShowNextQuestion),
       window.removeEventListener("didChangeSRS", this.#t);
   }
-  #e = (e) => {
-    const { subject: t } = e.detail;
+  #onWillShowNextQuestion = (e) => {
+    const { subject } = e.detail;
     if (
       (this.variantClass && this.element.classList.remove(this.variantClass),
       (this.variantClass = `${
         this.baseClass
-      }--${t.subject_category.toLowerCase()}`),
+      }--${subject.subject_category.toLowerCase()}`),
       this.element.classList.add(this.variantClass),
-      "string" == typeof t.characters)
+      "string" == typeof subject.characters)
     )
-      this.charactersTarget.innerText = t.characters;
+      this.charactersTarget.innerText = subject.characters;
     else {
       const e = this.characterImageTemplate.content.firstElementChild.cloneNode(
         !0
       );
-      (e.src = t.characters.url),
-        e.setAttribute("alt", t.characters.meaning),
+      (e.src = subject.characters.url),
+        e.setAttribute("alt", subject.characters.meaning),
         this.charactersTarget.replaceChildren(e);
     }
     this.srsContainerTarget.hidden = !0;

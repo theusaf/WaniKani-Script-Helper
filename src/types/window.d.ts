@@ -5,6 +5,7 @@ import DidUpdateUserSynonymsEvent from "events/did_update_user_synonyms";
 import RegisterWrapUpObserverEvent from "events/register_wrap_up_observer";
 import DidCompleteSubjectEvent from "events/did_complete_subject";
 import UpdateQuizProgress from "events/update_quiz_progress";
+import WillShowNextQuestionEvent from "events/will_show_next_question";
 import { KeyboardManager } from "lib/keyboard_manager";
 
 interface WaniKaniEvents {
@@ -15,6 +16,8 @@ interface WaniKaniEvents {
   didUpdateUserSynonyms: DidUpdateUserSynonymsEvent;
   registerWrapUpObserver: RegisterWrapUpObserverEvent;
   updateQuizProgress: UpdateQuizProgress;
+  audioWillPlay: CustomEvent;
+  willShowNextQuestion: WillShowNextQuestionEvent;
 }
 
 declare global {

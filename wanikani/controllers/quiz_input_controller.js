@@ -22,7 +22,7 @@ export default class extends Controller {
   #t;
   initialize() {
     (this.#n = !0),
-      window.addEventListener("willShowNextQuestion", this.#i),
+      window.addEventListener("willShowNextQuestion", this.#onWillShowNextQuestion),
       this.formTarget.addEventListener("submit", (e) => {
         e.stopPropagation(), e.preventDefault();
       });
@@ -37,7 +37,7 @@ export default class extends Controller {
       this.inputTarget.focus();
   }
   disconnect() {
-    window.removeEventListener("willShowNextQuestion", this.#i),
+    window.removeEventListener("willShowNextQuestion", this.#onWillShowNextQuestion),
       window.keyboardManager.deregisterHotKey({
         key: "Enter",
         callback: this.#a,
@@ -119,7 +119,7 @@ export default class extends Controller {
         this.inputContainerTarget.setAttribute("correct", n.passed),
         this.quizQueueOutlet.submitAnswer(e, n));
   }
-  #i = (e) => {
+  #onWillShowNextQuestion = (e) => {
     (this.currentQuestionType = e.detail.questionType),
       (this.currentSubject = e.detail.subject),
       (this.categoryTarget.innerText = this.currentSubject.subject_category),
