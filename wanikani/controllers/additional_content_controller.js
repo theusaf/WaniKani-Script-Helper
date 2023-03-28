@@ -12,13 +12,13 @@ export default class extends Controller {
       ),
       this.element.addEventListener("contentLoaded", this.#t),
       this.contentToggleTargets.forEach((t) => {
-        const e = t.dataset.hotkey;
-        e &&
+        const hotkey = t.dataset.hotkey;
+        hotkey &&
           ((t.onHotkey = () => {
             t.click();
           }),
           window.keyboardManager.registerHotKey({
-            key: e,
+            key: hotkey,
             callback: t.onHotkey,
           }),
           (t.dataset.hotkeyRegistered = !0));
@@ -32,14 +32,14 @@ export default class extends Controller {
       ),
       this.element.removeEventListener("contentLoaded", this.#t);
   }
-  contentToggleTargetDisconnected(t) {
-    const e = t.dataset.hotkey;
-    e &&
+  contentToggleTargetDisconnected(target) {
+    const hotkey = target.dataset.hotkey;
+    hotkey &&
       (window.keyboardManager.deregisterHotKey({
-        key: e,
-        callback: t.onHotkey,
+        key: hotkey,
+        callback: target.onHotkey,
       }),
-      (t.dataset.hotkeyRegistered = !1));
+      (target.dataset.hotkeyRegistered = !1));
   }
   showContainer(t) {
     t.style.display = "block";
@@ -62,18 +62,18 @@ export default class extends Controller {
       n = e.turboFrame || e.contentId;
     return this.contentContainerTargets.find((t) => t.id === n);
   }
-  open(t) {
+  open(event) {
     this.contentTarget.classList.add(this.openClass),
       this.currentContainer && this.hideContainer(this.currentContainer),
       this.contentToggleTargets.forEach((t) =>
         t.classList.remove(this.toggleOpenClass)
       );
-    const e = this.contentContainerFromEvent(t);
+    const e = this.contentContainerFromEvent(event);
     e &&
       (this.dispatch("willOpenContent"),
       (this.currentContainer = e),
       this.showContainer(this.currentContainer),
-      t.currentTarget.classList.add(this.toggleOpenClass),
+      event.currentTarget.classList.add(this.toggleOpenClass),
       "true" === this.currentContainer.dataset.loaded && this.#e());
   }
   close() {

@@ -16,8 +16,9 @@ interface WaniKaniEvents {
   didUpdateUserSynonyms: DidUpdateUserSynonymsEvent;
   registerWrapUpObserver: RegisterWrapUpObserverEvent;
   updateQuizProgress: UpdateQuizProgress;
-  audioWillPlay: CustomEvent;
   willShowNextQuestion: WillShowNextQuestionEvent;
+  audioWillPlay: CustomEvent;
+  willOpenContent: CustomEvent;
 }
 
 declare global {
