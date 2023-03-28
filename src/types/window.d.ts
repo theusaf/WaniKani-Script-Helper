@@ -3,12 +3,14 @@ import DidAnswerQuestionEvent from "events/did_answer_question";
 import DidChangeSRSEvent from "events/did_change_srs_event";
 import DidUpdateUserSynonymsEvent from "events/did_update_user_synonyms";
 import RegisterWrapUpObserverEvent from "events/register_wrap_up_observer";
+import DidCompleteSubjectEvent from "events/did_complete_subject";
 import UpdateQuizProgress from "events/update_quiz_progress";
 import { KeyboardManager } from "lib/keyboard_manager";
 
 interface WaniKaniEvents {
   connectionTimeout: ConnectionTimeout;
   didAnswerQuestion: DidAnswerQuestionEvent;
+  didCompleteSubject: DidCompleteSubjectEvent;
   didChangeSRS: DidChangeSRSEvent;
   didUpdateUserSynonyms: DidUpdateUserSynonymsEvent;
   registerWrapUpObserver: RegisterWrapUpObserverEvent;

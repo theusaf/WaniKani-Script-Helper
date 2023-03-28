@@ -20,6 +20,7 @@ declare module "events/did_answer_question" {
     subject: {
       id: number;
       readings: Reading[];
+      subject_category: string;
     };
     stats: {
       meaning: {
