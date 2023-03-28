@@ -8,10 +8,10 @@ declare module "events/register_wrap_up_observer" {
     onWrapUp: ({ isWrappingUp: number, currentCount: number }) => void;
   }
 
-  export default class RegisterWrapUpObserver extends CustomEvent<WKObserver> {
+  export default class RegisterWrapUpObserverEvent extends CustomEvent<WKObserver> {
     constructor(options: {
       observer: MutationObserver;
-    }): RegisterWrapUpObserver;
+    }): RegisterWrapUpObserverEvent;
     type: "registerWrapUpObserver";
     static newObserver(options: WKObserver): WKObserver;
   }

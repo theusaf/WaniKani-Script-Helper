@@ -2,7 +2,8 @@ import ConnectionTimeout from "events/connection_timeout";
 import DidAnswerQuestionEvent from "events/did_answer_question";
 import DidChangeSRSEvent from "events/did_change_srs_event";
 import DidUpdateUserSynonymsEvent from "events/did_update_user_synonyms";
-import RegisterWrapUpObserver from "events/register_wrap_up_observer";
+import RegisterWrapUpObserverEvent from "events/register_wrap_up_observer";
+import UpdateQuizProgress from "events/update_quiz_progress";
 import { KeyboardManager } from "lib/keyboard_manager";
 
 interface WaniKaniEvents {
@@ -10,7 +11,8 @@ interface WaniKaniEvents {
   didAnswerQuestion: DidAnswerQuestionEvent;
   didChangeSRS: DidChangeSRSEvent;
   didUpdateUserSynonyms: DidUpdateUserSynonymsEvent;
-  registerWrapUpObserver: RegisterWrapUpObserver;
+  registerWrapUpObserver: RegisterWrapUpObserverEvent;
+  updateQuizProgress: UpdateQuizProgress;
 }
 
 declare global {
