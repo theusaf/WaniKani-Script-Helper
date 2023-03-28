@@ -6,52 +6,57 @@ import CachedStats from "controllers/quiz_queue/cached_stats";
 import WrapUpManager from "controllers/quiz_queue/wrap_up_manager";
 import SRSManager from "controllers/quiz_queue/srs_manager";
 export default class QuizQueue {
-  #e;
-  #t;
-  #i;
-  #s;
-  #n;
-  #r;
-  #a;
-  #u;
+  #api;
+  #onDone;
+  #items;
+  #currentSlice;
+  #totalRemaining;
+  #wrapUpManager;
+  #srsManager;
+  #remainingIds;
   #statsMap = new CachedStats();
-  #o = 10;
-  #c = 20;
-  #m = 100;
-  #p = !1;
-  #g = !1;
-  #l = "random";
+  #MAX_ITEM_ZUTSU = 10;
+  #UNLOADED_THRESHHOLD = 20;
+  #ITEMS_TO_LOAD = 100;
+  #loading = !1;
+  #completeSubjectsInOrder = !1;
+  #questionOrder = "random";
   constructor({
-    queue: e,
-    api: t,
-    remainingIds: i,
-    srsMap: s,
-    completeSubjectsInOrder: n,
-    questionOrder: r,
-    onDone: a,
+    queue,
+    api,
+    remainingIds,
+    srsMap,
+    completeSubjectsInOrder,
+    questionOrder,
+    onDone,
   }) {
-    (this.#i = e.slice(0, this.#o)),
-      (this.#s = e.slice(this.#o)),
-      (this.#e = t),
-      (this.#r = new WrapUpManager(this.#i.length)),
-      (this.#a = new SRSManager(s)),
-      (this.#u = i),
-      (this.#t = a),
-      (this.#n = this.#d),
-      this.#Q(0),
-      (this.#g = n),
-      (this.#l = r);
+    (this.#items = queue.slice(0, this.#MAX_ITEM_ZUTSU)),
+      (this.#currentSlice = queue.slice(this.#MAX_ITEM_ZUTSU)),
+      (this.#api = api),
+      (this.#wrapUpManager = new WrapUpManager(this.#items.length)),
+      (this.#srsManager = new SRSManager(srsMap)),
+      (this.#remainingIds = remainingIds),
+      (this.#onDone = onDone),
+      (this.#totalRemaining = this.#totalItemsRemaining),
+      this.#updateQuizProgress(0),
+      (this.#completeSubjectsInOrder = completeSubjectsInOrder),
+      (this.#questionOrder = questionOrder);
   }
   nextItem(e) {
-    if (0 === this.#d || (this.#r.wrappingUp && 0 === this.#i.length))
-      return this.#t(), void this.#Q(0);
-    this.currentItem = this.#i[0];
-    const t = this.#statsMap.get(this.currentItem);
-    t.reading.complete ||
-    (("meaning" === e || "meaningFirst" === this.#l) && !t.meaning.complete)
+    if (
+      0 === this.#totalItemsRemaining ||
+      (this.#wrapUpManager.wrappingUp && 0 === this.#items.length)
+    )
+      return this.#onDone(), void this.#updateQuizProgress(0);
+    this.currentItem = this.#items[0];
+    const stat = this.#statsMap.get(this.currentItem);
+    stat.reading.complete ||
+    (("meaning" === e || "meaningFirst" === this.#questionOrder) &&
+      !stat.meaning.complete)
       ? (this.questionType = "meaning")
-      : t.meaning.complete ||
-        (("reading" === e || "readingFirst" === this.#l) && !t.reading.complete)
+      : stat.meaning.complete ||
+        (("reading" === e || "readingFirst" === this.#questionOrder) &&
+          !stat.reading.complete)
       ? (this.questionType = "reading")
       : (this.questionType = ["meaning", "reading"][
           Math.floor(2 * Math.random())
@@ -63,76 +68,90 @@ export default class QuizQueue {
         })
       );
   }
-  submitAnswer(e, t) {
-    const i = this.#I(t.passed),
+  submitAnswer(answer, results) {
+    const i = this.#updateStatsFromOutcome(results.passed),
       s = JSON.parse(JSON.stringify({ subject: this.currentItem, stats: i }));
     window.dispatchEvent(
       new DidAnswerQuestionEvent({
         subjectWithStats: s,
         questionType: this.questionType,
-        answer: e,
-        results: t,
+        answer: answer,
+        results: results,
       })
     ),
       i.reading.complete && i.meaning.complete
-        ? (this.#e.itemComplete({ item: this.currentItem, stats: i }),
+        ? (this.#api.itemComplete({ item: this.currentItem, stats: i }),
           window.dispatchEvent(
             new DidCompleteSubjectEvent({ subjectWithStats: s })
           ),
-          this.#a.updateSRS({ subject: this.currentItem, stats: i }),
-          this.#v(),
-          this.#Q(),
+          this.#srsManager.updateSRS({ subject: this.currentItem, stats: i }),
+          this.#removeCurrentItem(),
+          this.#updateQuizProgress(),
           this.#statsMap.delete(this.currentItem))
-        : this.#g || this.#w(t.passed);
+        : this.#completeSubjectsInOrder || this.#w(results.passed);
   }
-  #I = (e) => {
-    const t = this.#statsMap.get(this.currentItem);
+  #updateStatsFromOutcome = (passed) => {
+    const stat = this.#statsMap.get(this.currentItem);
     return (
-      (t[this.questionType].complete = e),
-      e || (t[this.questionType].incorrect += 1),
-      this.#statsMap.set(this.currentItem, t),
-      t
+      (stat[this.questionType].complete = passed),
+      passed || (stat[this.questionType].incorrect += 1),
+      this.#statsMap.set(this.currentItem, stat),
+      stat
     );
   };
-  #Q = (e) => {
+  #updateQuizProgress = (e) => {
     "number" != typeof e &&
-      (e = Math.round(((this.#n - this.#d) / this.#n) * 100)),
+      (e = Math.round(
+        ((this.#totalRemaining - this.#totalItemsRemaining) /
+          this.#totalRemaining) *
+          100
+      )),
       window.dispatchEvent(new UpdateQuizProgress({ percentComplete: e }));
   };
-  #v = () => {
-    if (this.#r.wrappingUp) this.#i = this.#i.slice(1);
+  #removeCurrentItem = () => {
+    if (this.#wrapUpManager.wrappingUp) this.#items = this.#items.slice(1);
     else {
-      const e = this.#o - this.#i.length + 1;
-      (this.#i = this.#i.slice(1).concat(this.#s.slice(0, e))),
-        (this.#s = this.#s.slice(e)),
-        this.#S();
+      const i = this.#MAX_ITEM_ZUTSU - this.#items.length + 1;
+      (this.#items = this.#items
+        .slice(1)
+        .concat(this.#currentSlice.slice(0, i))),
+        (this.#currentSlice = this.#currentSlice.slice(i)),
+        this.#loadItems();
     }
-    this.#r.updateQueueSize(this.#i.length);
+    this.#wrapUpManager.updateQueueSize(this.#items.length);
   };
-  get #d() {
-    return this.#i.length + this.#s.length + this.#u.length;
+  get #totalItemsRemaining() {
+    return (
+      this.#items.length + this.#currentSlice.length + this.#remainingIds.length
+    );
   }
   #w = (e) => {
-    const t = this.#i[0],
-      i = this.#i.slice(1),
+    const t = this.#items[0],
+      i = this.#items.slice(1),
       s = (e, t) => Math.floor(Math.random() * (t - e + 1) + e),
       n = s(e ? 0 : Math.ceil(i.length / 2), i.length);
-    i.splice(n, 0, t), (this.#i = i);
+    i.splice(n, 0, t), (this.#items = i);
   };
-  #S = () => {
-    if (0 === this.#u.length || this.#s.length > this.#c || this.#p) return;
-    this.#p = !0;
-    const e = this.#u.slice(0, this.#m);
-    this.#e
+  #loadItems = () => {
+    if (
+      0 === this.#remainingIds.length ||
+      this.#currentSlice.length > this.#UNLOADED_THRESHHOLD ||
+      this.#loading
+    )
+      return;
+    this.#loading = !0;
+    const e = this.#remainingIds.slice(0, this.#ITEMS_TO_LOAD);
+    this.#api
       .fetchItems({ ids: e })
       .then((e) => {
-        (this.#s = this.#s.concat(e)), (this.#u = this.#u.slice(this.#m));
+        (this.#currentSlice = this.#currentSlice.concat(e)),
+          (this.#remainingIds = this.#remainingIds.slice(this.#ITEMS_TO_LOAD));
       })
       .catch((e) => {
         console.error(e);
       })
       .finally(() => {
-        this.#p = !1;
+        this.#loading = !1;
       });
   };
 }
