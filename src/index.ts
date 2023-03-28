@@ -1,0 +1,1 @@
+import { WanaKanaOptions } from "wanakana";
