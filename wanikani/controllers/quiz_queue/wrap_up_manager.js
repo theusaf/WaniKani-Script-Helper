@@ -1,28 +1,34 @@
 export default class WrapUpManager {
-  #r = [];
-  #e = 0;
-  #p = !1;
+  #observers = [];
+  #currentCount = 0;
+  #isWrappingUp = !1;
   constructor(r) {
-    (this.#e = r), window.addEventListener("registerWrapUpObserver", this.#s);
+    (this.#currentCount = r),
+      window.addEventListener("registerWrapUpObserver", this.#onRegisterWrapUp);
   }
   get wrappingUp() {
-    return this.#p;
+    return this.#isWrappingUp;
   }
   updateQueueSize(r) {
-    (this.#e = r), this.#r.forEach((e) => e.onUpdateCount({ currentCount: r }));
+    (this.#currentCount = r),
+      this.#observers.forEach((e) => e.onUpdateCount({ currentCount: r }));
   }
-  #s = (r) => {
-    const { observer: e } = r.detail;
-    this.#r.push(e), e.onRegistration(this.#t, this.#i);
+  #onRegisterWrapUp = (r) => {
+    const { observer: observer } = r.detail;
+    this.#observers.push(observer),
+      observer.onRegistration(this.#wrapUp, this.#removeObserver);
   };
-  #i = (r) => {
-    const e = this.#r.findIndex((e) => e === r);
-    -1 !== e && this.#r.splice(e, 1);
+  #removeObserver = (r) => {
+    const e = this.#observers.findIndex((e) => e === r);
+    -1 !== e && this.#observers.splice(e, 1);
   };
-  #t = () => {
-    (this.#p = !this.#p),
-      this.#r.forEach((r) =>
-        r.onWrapUp({ isWrappingUp: this.#p, currentCount: this.#e })
+  #wrapUp = () => {
+    (this.#isWrappingUp = !this.#isWrappingUp),
+      this.#observers.forEach((obs) =>
+        obs.onWrapUp({
+          isWrappingUp: this.#isWrappingUp,
+          currentCount: this.#currentCount,
+        })
       );
   };
 }
