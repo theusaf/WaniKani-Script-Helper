@@ -7,6 +7,11 @@ import DidCompleteSubjectEvent from "events/did_complete_subject";
 import UpdateQuizProgress from "events/update_quiz_progress";
 import WillShowNextQuestionEvent from "events/will_show_next_question";
 import { KeyboardManager } from "lib/keyboard_manager";
+import {
+  TurboBeforeCacheEvent,
+  TurboBeforeVisitEvent,
+  TurboLoadEvent,
+} from "@Hotwired/turbo";
 
 interface WaniKaniEvents {
   connectionTimeout: ConnectionTimeout;
@@ -64,6 +69,23 @@ export interface Events {
   ContentWillOpen: "willOpenContent";
 }
 
+export type LocationMatcher = RegExp | string | ((url: string) => boolean);
+export type ScriptCallback<K extends Event = Event> =
+  | ((event: K) => void)
+  | (() => void);
+export interface WKHFScriptParams {
+  locationMatcher: LocationMatcher;
+  ignoreActiveState?: boolean;
+  onBeforeVisit?: ScriptCallback<TurboBeforeVisitEvent>;
+  onBeforeCache?: ScriptCallback<TurboBeforeCacheEvent>;
+  onLoad?: ScriptCallback<TurboLoadEvent>;
+  activate?: () => void;
+  deactivate?: () => void;
+}
+export interface WKHFScript {
+  locationMatcher: LocationMatcher;
+}
+
 export type EventListenerCallback<K extends keyof WaniKaniEvents> = (
   event: WaniKaniEvents[K]
 ) => void;
@@ -79,6 +101,9 @@ export interface WKHF {
     event: K,
     listener: EventListenerCallback<K>
   ): void;
+  registerScript(name: string, params: WKHFScriptParams): WKHFScript;
+  unregisterScript(name: string): void;
+  fetchScript(url: string): WKHFScript;
 }
 
 declare global {

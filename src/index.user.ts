@@ -12,7 +12,18 @@
 // @grant        none
 // ==/UserScript==
 
-import { EventListenerCallback, WaniKaniEvents } from "./types/window";
+import {
+  EventListenerCallback,
+  LocationMatcher,
+  ScriptCallback,
+  WaniKaniEvents,
+  WKHFScriptParams,
+} from "./types/window";
+import {
+  TurboBeforeCacheEvent,
+  TurboBeforeVisitEvent,
+  TurboLoadEvent,
+} from "@Hotwired/turbo";
 
 enum Events {
   /**
@@ -58,6 +69,7 @@ enum Events {
 }
 
 (function () {
+  // ~~ Event Listening
   const wkhfListeners = new Map<
     keyof WaniKaniEvents,
     Set<EventListenerCallback<keyof WaniKaniEvents>>
@@ -68,21 +80,114 @@ enum Events {
       const type = event.type as keyof WaniKaniEvents;
       if (!wkhfListeners.has(type)) return;
       for (const listener of wkhfListeners.get(type)) {
-        let stopped = false;
-        const stopImmediatePropagation = event.stopImmediatePropagation;
-        const stopPropagation = event.stopPropagation;
-        event.stopImmediatePropagation = () => {
-          stopped = true;
-          stopImmediatePropagation.call(event);
-        };
-        event.stopPropagation = () => {
-          stopPropagation.call(event);
-        };
         listener(event as CustomEvent);
-        if (stopped) break;
       }
     });
   }
+
+  // Loading/unloading scripts
+  class WKHFScript {
+    locationMatcher: LocationMatcher;
+    isActivated: boolean;
+    ignoreActiveState: boolean;
+    onBeforeVisit?: ScriptCallback<TurboBeforeVisitEvent>;
+    onBeforeCache?: ScriptCallback<TurboBeforeCacheEvent>;
+    onLoad?: ScriptCallback<TurboLoadEvent>;
+    #deactivate?: () => void;
+    #activate?: () => void;
+
+    constructor({
+      locationMatcher,
+      ignoreActiveState = false,
+      onBeforeVisit,
+      onBeforeCache,
+      onLoad,
+      activate,
+      deactivate,
+    }: WKHFScriptParams) {
+      this.locationMatcher = locationMatcher;
+      this.onBeforeVisit = onBeforeVisit;
+      this.onBeforeCache = onBeforeCache;
+      this.onLoad = onLoad;
+      this.#activate = activate;
+      this.#deactivate = deactivate;
+      this.isActivated = false;
+      this.ignoreActiveState = ignoreActiveState;
+    }
+
+    activate() {
+      this.isActivated = true;
+      this.#activate?.();
+    }
+    deactivate() {
+      this.isActivated = false;
+      this.#deactivate?.();
+    }
+
+    setOnBeforeVisit(onBeforeVisit: ScriptCallback<TurboBeforeVisitEvent>) {
+      this.onBeforeVisit = onBeforeVisit;
+    }
+    setOnBeforeCache(onBeforeCache: ScriptCallback<TurboBeforeCacheEvent>) {
+      this.onBeforeCache = onBeforeCache;
+    }
+    setOnLoad(onLoad: ScriptCallback<TurboLoadEvent>) {
+      this.onLoad = onLoad;
+    }
+    setActivate(activate: () => void) {
+      this.#activate = activate;
+    }
+    setDeactivate(deactivate: () => void) {
+      this.#deactivate = deactivate;
+    }
+
+    doesLocationMatch(url: string) {
+      switch (typeof this.locationMatcher) {
+        case "string": {
+          // treat like a glob
+          const glob = this.locationMatcher
+            .replace(/\./g, "\\.")
+            .replace(/\*/g, ".*")
+            .replace(/\?/g, ".");
+          const regex = new RegExp(glob);
+          return regex.test(url);
+        }
+        case "function":
+          return this.locationMatcher(url);
+        case "object":
+          return this.locationMatcher.test(url);
+      }
+    }
+  }
+  const wkhfScripts = new Map<string, WKHFScript>();
+  window.addEventListener(
+    "turbo:before-visit",
+    (event: TurboBeforeVisitEvent) => {
+      for (const script of wkhfScripts.values()) {
+        if (script.isActivated || script.ignoreActiveState) {
+          script.onBeforeVisit?.(event);
+        }
+      }
+    }
+  );
+  window.addEventListener(
+    "turbo:before-cache",
+    (event: TurboBeforeCacheEvent) => {
+      for (const script of wkhfScripts.values()) {
+        if (script.isActivated || script.ignoreActiveState) {
+          script.onBeforeCache?.(event);
+          if (script.isActivated) script.deactivate();
+        }
+      }
+    }
+  );
+  window.addEventListener("turbo:load", (event: TurboLoadEvent) => {
+    for (const script of wkhfScripts.values()) {
+      if (script.doesLocationMatch(window.location.href)) {
+        script.onLoad?.(event);
+        if (!script.isActivated) script.activate();
+      }
+    }
+  });
 
   // ———————————————————————————— Public Methods ————————————————————————————
 
@@ -102,10 +207,26 @@ enum Events {
     wkhfListeners.get(event).delete(listener);
   }
 
+  function registerScript(name: string, script: WKHFScriptParams) {
+    if (wkhfScripts.has(name))
+      throw new Error(`Script '${name}' already exists`);
+    wkhfScripts.set(name, new WKHFScript(script));
+    return wkhfScripts.get(name);
+  }
+  function unregisterScript(name: string) {
+    wkhfScripts.delete(name);
+  }
+  function fetchScript(name: string) {
+    return wkhfScripts.get(name);
+  }
+
   window.wkhf = {
     version: "1.0.0",
     addEventListener,
     removeEventListener,
     Events,
+    registerScript,
+    unregisterScript,
+    fetchScript,
   };
 })();
