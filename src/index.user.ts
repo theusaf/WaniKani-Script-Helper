@@ -3,6 +3,7 @@
 // @name:ja          WaniKaniのHotwiredのフレームワーク
 // @namespace        https://theusaf.org
 // @homepage         https://github.com/theusaf/wkhf
+// @icon             https://img.craiyon.com/2023-03-29/2e148260a9c5412a94c4fc6ee49e4352.webp
 // @author           theusaf
 // @description      A framework for writing scripts for WaniKani, focused on WaniKani's Hotwired actions.
 // @description:ja   WaniKaniのHotwiredアクションに焦点を当てた、WaniKaniのスクリプトを作るためのフレームワークです。
