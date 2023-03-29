@@ -15,6 +15,8 @@
 // @grant            none
 // ==/UserScript==
 
+"use strict";
+
 import {
   EventListenerCallback,
   LocationMatcher,

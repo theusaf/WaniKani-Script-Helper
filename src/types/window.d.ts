@@ -116,7 +116,7 @@ export interface WKHFScriptParams {
    */
   deactivate?: () => void;
 }
-export interface WKHFScript {
+export class WKHFScript {
   /**
    * The matcher used to determine whether the script should
    * be active on a given location.

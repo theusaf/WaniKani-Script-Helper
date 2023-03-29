@@ -8,8 +8,7 @@
     "inlineSourceMap": true,
     "outDir": "./dist/",
     "lib": ["ES2022", "DOM"],
-    "typeRoots": ["./src/types/**/*"],
-    "noImplicitUseStrict": true
+    "typeRoots": ["./src/types/**/*"]
   },
   "include": ["./src/**/*"]
 }
