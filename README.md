@@ -14,4 +14,31 @@ Since WaniKani is becoming a single-page application, I recommend the following:
 // @match        https://www.wanikani.com/*
 ```
 
-## API
+There are a few ways to use this framework:
+1. Use the `wkhf` object directly:
+
+```js
+if (window.wkhf) {
+  window.wkhf.registerScript("my-script", {
+    locationMatcher: "https://www.wanikani.com/subjects/*",
+    activate: () => {
+      // Do stuff
+    },
+    deactivate: () => {
+      // Clean up
+    },
+  });
+}
+```
+
+2. Use methods from the patched modules:
+
+```js
+const {
+  default: AnswerChecker,  // Patched original module
+  hasDigits,               // Method that was not exported originally
+  wkhfRegisterPlugin       // New method created by wkhf
+} = await import("lib/answer_checker/answer_checker");
+
+// ...
+```
