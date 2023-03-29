@@ -84,6 +84,13 @@ export interface WKHFScriptParams {
 }
 export interface WKHFScript {
   locationMatcher: LocationMatcher;
+  isActivated: boolean;
+  ignoreActiveState: boolean;
+  onBeforeVisit: ScriptCallback<TurboBeforeVisitEvent>;
+  onBeforeCache: ScriptCallback<TurboBeforeCacheEvent>;
+  onLoad: ScriptCallback<TurboLoadEvent>;
+  activate: () => void;
+  deactivate: () => void;
 }
 
 export type EventListenerCallback<K extends keyof WaniKaniEvents> = (

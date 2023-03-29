@@ -93,9 +93,9 @@ enum Events {
     locationMatcher: LocationMatcher;
     isActivated: boolean;
     ignoreActiveState: boolean;
-    onBeforeVisit?: ScriptCallback<TurboBeforeVisitEvent>;
-    onBeforeCache?: ScriptCallback<TurboBeforeCacheEvent>;
-    onLoad?: ScriptCallback<TurboLoadEvent>;
+    #onBeforeVisit?: ScriptCallback<TurboBeforeVisitEvent>;
+    #onBeforeCache?: ScriptCallback<TurboBeforeCacheEvent>;
+    #onLoad?: ScriptCallback<TurboLoadEvent>;
     #deactivate?: () => void;
     #activate?: () => void;
 
@@ -109,32 +109,61 @@ enum Events {
       deactivate,
     }: WKHFScriptParams) {
       this.locationMatcher = locationMatcher;
-      this.onBeforeVisit = onBeforeVisit;
-      this.onBeforeCache = onBeforeCache;
-      this.onLoad = onLoad;
+      this.#onBeforeVisit = onBeforeVisit;
+      this.#onBeforeCache = onBeforeCache;
+      this.#onLoad = onLoad;
       this.#activate = activate;
       this.#deactivate = deactivate;
       this.isActivated = false;
       this.ignoreActiveState = ignoreActiveState;
     }
 
+    onBeforeVisit(event: TurboBeforeVisitEvent) {
+      try {
+        this.#onBeforeVisit?.(event);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    onBeforeCache(event: TurboBeforeCacheEvent) {
+      try {
+        this.#onBeforeCache?.(event);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    onLoad(event: TurboLoadEvent) {
+      try {
+        this.#onLoad?.(event);
+      } catch (e) {
+        console.error(e);
+      }
+    }
     activate() {
-      this.isActivated = true;
-      this.#activate?.();
+      try {
+        this.#activate?.();
+        this.isActivated = true;
+      } catch (e) {
+        console.error(e);
+      }
     }
     deactivate() {
-      this.isActivated = false;
-      this.#deactivate?.();
+      try {
+        this.#deactivate?.();
+        this.isActivated = false;
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     setOnBeforeVisit(onBeforeVisit: ScriptCallback<TurboBeforeVisitEvent>) {
-      this.onBeforeVisit = onBeforeVisit;
+      this.#onBeforeVisit = onBeforeVisit;
     }
     setOnBeforeCache(onBeforeCache: ScriptCallback<TurboBeforeCacheEvent>) {
-      this.onBeforeCache = onBeforeCache;
+      this.#onBeforeCache = onBeforeCache;
     }
     setOnLoad(onLoad: ScriptCallback<TurboLoadEvent>) {
-      this.onLoad = onLoad;
+      this.#onLoad = onLoad;
     }
     setActivate(activate: () => void) {
       this.#activate = activate;
@@ -144,20 +173,25 @@ enum Events {
     }
 
     doesLocationMatch(url: string) {
-      switch (typeof this.locationMatcher) {
-        case "string": {
-          // treat like a glob
-          const glob = this.locationMatcher
-            .replace(/\./g, "\\.")
-            .replace(/\*/g, ".*")
-            .replace(/\?/g, ".");
-          const regex = new RegExp(glob);
-          return regex.test(url);
+      try {
+        switch (typeof this.locationMatcher) {
+          case "string": {
+            // treat like a glob
+            const glob = this.locationMatcher
+              .replace(/\./g, "\\.")
+              .replace(/\*/g, ".*")
+              .replace(/\?/g, ".");
+            const regex = new RegExp(glob);
+            return regex.test(url);
+          }
+          case "function":
+            return this.locationMatcher(url);
+          case "object":
+            return this.locationMatcher.test(url);
         }
-        case "function":
-          return this.locationMatcher(url);
-        case "object":
-          return this.locationMatcher.test(url);
+      } catch (e) {
+        console.error(e);
+        return false;
       }
     }
   }
@@ -169,7 +203,7 @@ enum Events {
       nextUrl = event.detail.url;
       for (const script of wkhfScripts.values()) {
         if (script.isActivated || script.ignoreActiveState) {
-          script.onBeforeVisit?.(event);
+          script.onBeforeVisit(event);
         }
       }
     }
@@ -179,7 +213,7 @@ enum Events {
     (event: TurboBeforeCacheEvent) => {
       for (const script of wkhfScripts.values()) {
         if (script.isActivated || script.ignoreActiveState) {
-          script.onBeforeCache?.(event);
+          script.onBeforeCache(event);
           if (script.isActivated && !script.doesLocationMatch(nextUrl)) {
             script.deactivate();
           }
@@ -190,7 +224,7 @@ enum Events {
   window.addEventListener("turbo:load", (event: TurboLoadEvent) => {
     for (const script of wkhfScripts.values()) {
       if (script.doesLocationMatch(window.location.href)) {
-        script.onLoad?.(event);
+        script.onLoad(event);
         if (!script.isActivated) script.activate();
       }
     }
