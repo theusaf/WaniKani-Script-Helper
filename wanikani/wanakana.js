@@ -14,114 +14,154 @@ function isCharInRange(t = "", e, n) {
   return e <= a && a <= n;
 }
 function isCharJapanese(t = "") {
-  return z.some(([e, n]) => isCharInRange(t, e, n));
+  return JAPANESE_POINTS.some(([e, n]) => isCharInRange(t, e, n));
 }
-function isJapanese(t = "", e) {
-  const n = "regexp" === typeOf(e);
+function isJapanese(text = "", regex) {
+  const isRegex = "regexp" === typeOf(regex);
   return (
-    !isEmpty(t) &&
-    [...t].every((t) => {
-      const a = isCharJapanese(t);
-      return n ? a || e.test(t) : a;
+    !isEmpty(text) &&
+    [...text].every((char) => {
+      const a = isCharJapanese(char);
+      return isRegex ? a || regex.test(char) : a;
     })
   );
 }
 function isEqual(t, e) {
-  return t === e || !(!q(t) || !q(e));
+  return t === e || !(!numberIsNaN(t) || !numberIsNaN(e));
 }
 function areInputsEqual(t, e) {
   if (t.length !== e.length) return !1;
   for (var n = 0; n < t.length; n++) if (!isEqual(t[n], e[n])) return !1;
   return !0;
 }
-function memoizeOne(t, e) {
-  function n() {
-    for (var n = [], i = 0; i < arguments.length; i++) n[i] = arguments[i];
-    if (a && a.lastThis === this && e(n, a.lastArgs)) return a.lastResult;
-    var r = t.apply(this, n);
-    return (a = { lastResult: r, lastArgs: n, lastThis: this }), r;
+function memoizeOne(func, func2) {
+  function memoizer() {
+    for (var list = [], i = 0; i < arguments.length; i++)
+      list[i] = arguments[i];
+    if (a && a.lastThis === this && func2(list, a.lastArgs))
+      return a.lastResult;
+    var r = func.apply(this, list);
+    return (a = { lastResult: r, lastArgs: list, lastThis: this }), r;
   }
-  void 0 === e && (e = areInputsEqual);
+  void 0 === func2 && (func2 = areInputsEqual);
   var a = null;
   return (
-    (n.clear = function () {
+    (memoizer.clear = function () {
       a = null;
     }),
-    n
+    memoizer
   );
 }
-function find(t, e, n) {
-  for (n of t.keys()) if (dequal(n, e)) return n;
+function find(object, e, n) {
+  for (n of object.keys()) if (dequal(n, e)) return n;
 }
-function dequal(t, e) {
-  var n, a, i;
-  if (t === e) return !0;
-  if (t && e && (n = t.constructor) === e.constructor) {
-    if (n === Date) return t.getTime() === e.getTime();
-    if (n === RegExp) return t.toString() === e.toString();
-    if (n === Array) {
-      if ((a = t.length) === e.length) for (; a-- && dequal(t[a], e[a]); );
-      return -1 === a;
+function dequal(object, object2) {
+  var constructorOne, lengthA, lengthA2;
+  if (object === object2) return !0;
+  if (
+    object &&
+    object2 &&
+    (constructorOne = object.constructor) === object2.constructor
+  ) {
+    if (constructorOne === Date) return object.getTime() === object2.getTime();
+    if (constructorOne === RegExp)
+      return object.toString() === object2.toString();
+    if (constructorOne === Array) {
+      if ((lengthA = object.length) === object2.length)
+        for (; lengthA-- && dequal(object[lengthA], object2[lengthA]); );
+      return -1 === lengthA;
     }
-    if (n === Set) {
-      if (t.size !== e.size) return !1;
-      for (a of t) {
-        if ((i = a) && "object" == typeof i && !(i = find(e, i))) return !1;
-        if (!e.has(i)) return !1;
+    if (constructorOne === Set) {
+      if (object.size !== object2.size) return !1;
+      for (lengthA of object) {
+        if (
+          (lengthA2 = lengthA) &&
+          "object" == typeof lengthA2 &&
+          !(lengthA2 = find(object2, lengthA2))
+        )
+          return !1;
+        if (!object2.has(lengthA2)) return !1;
       }
       return !0;
     }
-    if (n === Map) {
-      if (t.size !== e.size) return !1;
-      for (a of t) {
-        if ((i = a[0]) && "object" == typeof i && !(i = find(e, i))) return !1;
-        if (!dequal(a[1], e.get(i))) return !1;
+    if (constructorOne === Map) {
+      if (object.size !== object2.size) return !1;
+      for (lengthA of object) {
+        if (
+          (lengthA2 = lengthA[0]) &&
+          "object" == typeof lengthA2 &&
+          !(lengthA2 = find(object2, lengthA2))
+        )
+          return !1;
+        if (!dequal(lengthA[1], object2.get(lengthA2))) return !1;
       }
       return !0;
     }
-    if (n === ArrayBuffer) (t = new Uint8Array(t)), (e = new Uint8Array(e));
-    else if (n === DataView) {
-      if ((a = t.byteLength) === e.byteLength)
-        for (; a-- && t.getInt8(a) === e.getInt8(a); );
-      return -1 === a;
+    if (constructorOne === ArrayBuffer)
+      (object = new Uint8Array(object)), (object2 = new Uint8Array(object2));
+    else if (constructorOne === DataView) {
+      if ((lengthA = object.byteLength) === object2.byteLength)
+        for (
+          ;
+          lengthA-- && object.getInt8(lengthA) === object2.getInt8(lengthA);
+
+        );
+      return -1 === lengthA;
     }
-    if (ArrayBuffer.isView(t)) {
-      if ((a = t.byteLength) === e.byteLength) for (; a-- && t[a] === e[a]; );
-      return -1 === a;
+    if (ArrayBuffer.isView(object)) {
+      if ((lengthA = object.byteLength) === object2.byteLength)
+        for (; lengthA-- && object[lengthA] === object2[lengthA]; );
+      return -1 === lengthA;
     }
-    if (!n || "object" == typeof t) {
-      for (n in ((a = 0), t)) {
-        if (D.call(t, n) && ++a && !D.call(e, n)) return !1;
-        if (!(n in e) || !dequal(t[n], e[n])) return !1;
+    if (!constructorOne || "object" == typeof object) {
+      for (constructorOne in ((lengthA = 0), object)) {
+        if (
+          hasOwnProperty.call(object, constructorOne) &&
+          ++lengthA &&
+          !hasOwnProperty.call(object2, constructorOne)
+        )
+          return !1;
+        if (
+          !(constructorOne in object2) ||
+          !dequal(object[constructorOne], object2[constructorOne])
+        )
+          return !1;
       }
-      return Object.keys(e).length === a;
+      return Object.keys(object2).length === lengthA;
     }
   }
-  return t != t && e != e;
+  return object != object && object2 != object2;
 }
-function applyMapping(t, e, n) {
-  function a(t, e) {
-    if (void 0 !== t[e]) return Object.assign({ "": t[""] + e }, t[e]);
+function applyMapping(in1, in2, flag) {
+  function getOffset(text, index) {
+    if (void 0 !== text[index])
+      return Object.assign({ "": text[""] + index }, text[index]);
   }
-  function i(t, e) {
-    const n = t.charAt(0);
-    return r(Object.assign({ "": n }, o[n]), t.slice(1), e, e + 1);
+  function copyMap(text, index) {
+    const firstChar = text.charAt(0);
+    return executeMap(
+      Object.assign({ "": firstChar }, map2[firstChar]),
+      text.slice(1),
+      index,
+      index + 1
+    );
   }
-  function r(t, e, o, s) {
-    if (!e)
-      return n || 1 === Object.keys(t).length
-        ? t[""]
-          ? [[o, s, t[""]]]
+  function executeMap(text, list, start, end) {
+    if (!list)
+      return flag || 1 === Object.keys(text).length
+        ? text[""]
+          ? [[start, end, text[""]]]
           : []
-        : [[o, s, null]];
-    if (1 === Object.keys(t).length) return [[o, s, t[""]]].concat(i(e, s));
-    const u = a(t, e.charAt(0));
-    return void 0 === u
-      ? [[o, s, t[""]]].concat(i(e, s))
-      : r(u, e.slice(1), o, s + 1);
+        : [[start, end, null]];
+    if (1 === Object.keys(text).length)
+      return [[start, end, text[""]]].concat(copyMap(list, end));
+    const offset = getOffset(text, list.charAt(0));
+    return void 0 === offset
+      ? [[start, end, text[""]]].concat(copyMap(list, end))
+      : executeMap(offset, list.slice(1), start, end + 1);
   }
-  const o = e;
-  return i(t, 0);
+  const map2 = in2;
+  return copyMap(in1, 0);
 }
 function transform(t) {
   return Object.entries(t).reduce((t, [e, n]) => {
@@ -129,10 +169,10 @@ function transform(t) {
     return (t[e] = a ? { "": n } : transform(n)), t;
   }, {});
 }
-function getSubTreeOf(t, e) {
-  return e
+function getSubTreeOf(initialValue, text) {
+  return text
     .split("")
-    .reduce((t, e) => (void 0 === t[e] && (t[e] = {}), t[e]), t);
+    .reduce((t, e) => (void 0 === t[e] && (t[e] = {}), t[e]), initialValue);
 }
 function createCustomMapping(t = {}) {
   const e = {};
@@ -146,12 +186,12 @@ function createCustomMapping(t = {}) {
           (a[""] = n);
       }),
     function (t) {
-      function n(t, e) {
-        return void 0 === t || "string" === typeOf(t)
-          ? e
-          : Object.entries(e).reduce(
-              (e, [a, i]) => ((e[a] = n(t[a], i)), e),
-              t
+      function n(obj, obj2) {
+        return void 0 === obj || "string" === typeOf(obj)
+          ? obj2
+          : Object.entries(obj2).reduce(
+              (prev, [key, val]) => ((prev[key] = n(obj[key], val)), prev),
+              obj
             );
       }
       return n(JSON.parse(JSON.stringify(t)), e);
@@ -163,7 +203,7 @@ function mergeCustomMapping(t, e) {
 }
 function createRomajiToKanaMap$1() {
   function t(t) {
-    return [...Object.entries(F), ["c", "k"]].reduce(
+    return [...Object.entries(ADDITIONAL_MAPS), ["c", "k"]].reduce(
       (e, [n, a]) => (t.startsWith(a) ? e.concat(t.replace(a, n)) : e),
       []
     );
@@ -194,7 +234,7 @@ function createRomajiToKanaMap$1() {
       a(t)[""] = "\u3093";
     }),
     (n.c = JSON.parse(JSON.stringify(n.k))),
-    Object.entries(F).forEach(([t, e]) => {
+    Object.entries(ADDITIONAL_MAPS).forEach(([t, e]) => {
       const n = t.slice(0, t.length - 1),
         i = t.charAt(t.length - 1);
       a(n)[i] = JSON.parse(JSON.stringify(a(e)));
@@ -230,16 +270,18 @@ function IME_MODE_MAP(t) {
   return (e.n.n = { "": "\u3093" }), (e.n[" "] = { "": "\u3093" }), e;
 }
 function isCharUpperCase(t = "") {
-  return !isEmpty(t) && isCharInRange(t, o, r);
+  return !isEmpty(t) && isCharInRange(t, CAPITAL_A, CAPITAL_Z);
 }
 function isCharLongDash(t = "") {
-  return !isEmpty(t) && t.charCodeAt(0) === d;
+  return !isEmpty(t) && t.charCodeAt(0) === LONG_DASH;
 }
 function isCharSlashDot(t = "") {
-  return !isEmpty(t) && t.charCodeAt(0) === j;
+  return !isEmpty(t) && t.charCodeAt(0) === SLASH_DOT;
 }
 function isCharHiragana(t = "") {
-  return !isEmpty(t) && (!!isCharLongDash(t) || isCharInRange(t, l, f));
+  return (
+    !isEmpty(t) && (!!isCharLongDash(t) || isCharInRange(t, HIRA_A, HIRA_KE))
+  );
 }
 function hiraganaToKatakana(t = "") {
   const e = [];
@@ -247,7 +289,7 @@ function hiraganaToKatakana(t = "") {
     t.split("").forEach((t) => {
       if (isCharLongDash(t) || isCharSlashDot(t)) e.push(t);
       else if (isCharHiragana(t)) {
-        const n = t.charCodeAt(0) + (p - l),
+        const n = t.charCodeAt(0) + (KATA_A - HIRA_A),
           a = String.fromCharCode(n);
         e.push(a);
       } else e.push(t);
@@ -266,9 +308,9 @@ function toKana(t = "", n = {}, a) {
       .map((n) => {
         const [a, r, o] = n;
         if (null === o) return t.slice(a);
-        const s = i.IMEMode === e.HIRAGANA,
+        const s = i.IMEMode === TO_KANA_METHODS.HIRAGANA,
           u =
-            i.IMEMode === e.KATAKANA ||
+            i.IMEMode === TO_KANA_METHODS.KATAKANA ||
             [...t.slice(a, r)].every(isCharUpperCase);
         return s || !u ? o : hiraganaToKatakana(o);
       })
@@ -403,7 +445,7 @@ function unbind(t, e = !1) {
     !0 === e && removeDebugListeners(t);
 }
 function isCharRomaji(t = "") {
-  return !isEmpty(t) && $.some(([e, n]) => isCharInRange(t, e, n));
+  return !isEmpty(t) && ROMAJI_POINTS.some(([e, n]) => isCharInRange(t, e, n));
 }
 function isRomaji(t = "", e) {
   const n = "regexp" === typeOf(e);
@@ -416,7 +458,7 @@ function isRomaji(t = "", e) {
   );
 }
 function isCharKatakana(t = "") {
-  return isCharInRange(t, p, h);
+  return isCharInRange(t, KATA_A, LONG_DASH);
 }
 function isCharKana(t = "") {
   return !isEmpty(t) && (isCharHiragana(t) || isCharKatakana(t));
@@ -431,7 +473,7 @@ function isKatakana(t = "") {
   return !isEmpty(t) && [...t].every(isCharKatakana);
 }
 function isCharKanji(t = "") {
-  return isCharInRange(t, g, m);
+  return isCharInRange(t, KANJI_ONE, KANJI_LAST);
 }
 function isKanji(t = "") {
   return !isEmpty(t) && [...t].every(isCharKanji);
@@ -462,7 +504,7 @@ function katakanaToHiragana(
           : r.concat(it[a]);
       }
       if (!isCharLongDash(o) && isCharKatakana(o)) {
-        const t = o.charCodeAt(0) + (l - p),
+        const t = o.charCodeAt(0) + (HIRA_A - KATA_A),
           e = String.fromCharCode(t);
         return (i = e), r.concat(e);
       }
@@ -474,42 +516,44 @@ function getKanaToHepburnTree() {
   return null == st && (st = createKanaToHepburnMap()), st;
 }
 function getKanaToRomajiTree(t) {
-  return t === n.HEPBURN ? getKanaToHepburnTree() : {};
+  return t === ROMANIZATIONS.HEPBURN ? getKanaToHepburnTree() : {};
 }
 function createKanaToHepburnMap() {
-  const t = transform(ct),
+  const t = transform(hiraganaToRomajiMap),
     e = (e) => getSubTreeOf(t, e),
     n = (t, n) => {
       e(t)[""] = n;
     };
   return (
-    Object.entries(ut).forEach(([t, n]) => {
+    Object.entries(specialCharMap).forEach(([t, n]) => {
       e(t)[""] = n;
     }),
-    [...Object.entries(ft), ...Object.entries(ht)].forEach(([t, e]) => {
-      n(t, e);
-    }),
-    gt.forEach((t) => {
+    [...Object.entries(smallYaMap), ...Object.entries(smallVowelMap)].forEach(
+      ([t, e]) => {
+        n(t, e);
+      }
+    ),
+    iVowelList.forEach((t) => {
       const a = e(t)[""][0];
-      Object.entries(ft).forEach(([e, i]) => {
+      Object.entries(smallYaMap).forEach(([e, i]) => {
         n(t + e, a + i);
       }),
-        Object.entries(pt).forEach(([e, i]) => {
+        Object.entries(ySmallVowelMap).forEach(([e, i]) => {
           n(t + e, a + i);
         });
     }),
-    Object.entries(mt).forEach(([t, e]) => {
-      Object.entries(ft).forEach(([a, i]) => {
+    Object.entries(shijiMap).forEach(([t, e]) => {
+      Object.entries(smallYaMap).forEach(([a, i]) => {
         n(t + a, e + i[1]);
       }),
         n(`${t}\u3043`, `${e}yi`),
         n(`${t}\u3047`, `${e}e`);
     }),
     (t["\u3063"] = resolveTsu(t)),
-    Object.entries(dt).forEach(([t, e]) => {
+    Object.entries(smallKanaMap).forEach(([t, e]) => {
       n(t, e);
     }),
-    lt.forEach((t) => {
+    vowels.forEach((t) => {
       n(`\u3093${t}`, `n'${e(t)[""]}`);
     }),
     Object.freeze(JSON.parse(JSON.stringify(t)))
@@ -520,7 +564,9 @@ function resolveTsu(t) {
     if (e) t[e] = resolveTsu(n);
     else {
       const a = n.charAt(0);
-      t[e] = Object.keys(jt).includes(a) ? jt[a] + n : n;
+      t[e] = Object.keys(validRomajiSet).includes(a)
+        ? validRomajiSet[a] + n
+        : n;
     }
     return t;
   }, {});
@@ -528,7 +574,7 @@ function resolveTsu(t) {
 function toRomaji(t = "", e = {}, n) {
   const a = mergeWithDefaultOptions(e);
   return (
-    n || (n = yt(a.romanization, a.customRomajiMapping)),
+    n || (n = memoizedMap(a.romanization, a.customRomajiMapping)),
     splitIntoRomaji(t, a, n)
       .map((e) => {
         const [n, i, r] = e;
@@ -540,7 +586,7 @@ function toRomaji(t = "", e = {}, n) {
   );
 }
 function splitIntoRomaji(t, e, n) {
-  n || (n = yt(e.romanization, e.customRomajiMapping));
+  n || (n = memoizedMap(e.romanization, e.customRomajiMapping));
   return applyMapping(
     katakanaToHiragana(
       t,
@@ -552,7 +598,9 @@ function splitIntoRomaji(t, e, n) {
   );
 }
 function isCharEnglishPunctuation(t = "") {
-  return !isEmpty(t) && x.some(([e, n]) => isCharInRange(t, e, n));
+  return (
+    !isEmpty(t) && ENGLISH_PUNCT_POINTS.some(([e, n]) => isCharInRange(t, e, n))
+  );
 }
 function toHiragana(t = "", e = {}) {
   const n = mergeWithDefaultOptions(e);
@@ -573,7 +621,9 @@ function toKatakana(t = "", e = {}) {
   return hiraganaToKatakana(t);
 }
 function isCharJapanesePunctuation(t = "") {
-  return !isEmpty(t) && H.some(([e, n]) => isCharInRange(t, e, n));
+  return (
+    !isEmpty(t) && JAPANESE_PUNCTUATION.some(([e, n]) => isCharInRange(t, e, n))
+  );
 }
 function getType(t, e = !1) {
   const {
@@ -588,7 +638,7 @@ function getType(t, e = !1) {
     KATAKANA: p,
     SPACE: l,
     OTHER: f,
-  } = Et;
+  } = CHAR_TYPE;
   if (e)
     switch (!0) {
       case isCharJaNum(t):
@@ -669,71 +719,72 @@ function stripOkurigana(t = "", { leading: e = !1, matchKanji: n = "" } = {}) {
     i = new RegExp(e ? `^${tokenize(a).shift()}` : `${tokenize(a).pop()}$`);
   return t.replace(i, "");
 }
-const t = "5.1.0",
-  e = { HIRAGANA: "toHiragana", KATAKANA: "toKatakana" },
-  n = { HEPBURN: "hepburn" },
-  a = {
+const version = "5.1.0",
+  TO_KANA_METHODS = { HIRAGANA: "toHiragana", KATAKANA: "toKatakana" },
+  ROMANIZATIONS = { HEPBURN: "hepburn" },
+  DEFAULT_OPTIONS = {
     useObsoleteKana: !1,
     passRomaji: !1,
     upcaseKatakana: !1,
     IMEMode: !1,
     convertLongVowelMark: !0,
-    romanization: n.HEPBURN,
+    romanization: ROMANIZATIONS.HEPBURN,
   },
-  o = 65,
-  r = 90,
-  i = 65345,
-  s = 65370,
-  c = 65313,
-  u = 65338,
-  l = 12353,
-  f = 12438,
-  p = 12449,
-  h = 12540,
-  g = 19968,
-  m = 40879,
-  d = 12540,
-  j = 12539,
-  y = [65296, 65305],
-  E = [c, u],
-  C = [i, s],
-  k = [65281, 65295],
-  b = [65306, 65311],
-  v = [65339, 65343],
-  O = [65371, 65376],
-  A = [65504, 65518],
-  K = [12352, 12447],
-  w = [12448, 12543],
-  M = [65382, 65439],
-  R = [12539, 12540],
-  T = [65377, 65381],
-  N = [12288, 12351],
-  S = [19968, 40959],
-  I = [13312, 19903],
-  J = [K, w, T, M],
-  H = [N, T, R, k, b, v, O, A],
-  z = [...J, ...H, E, C, y, S, I],
-  L = [0, 127],
-  P = [
+  CAPITAL_A = 65,
+  CAPITAL_Z = 90,
+  HIRA_A = 12353,
+  HIRA_KE = 12438,
+  KATA_A = 12449,
+  KANJI_ONE = 19968,
+  KANJI_LAST = 40879,
+  LONG_DASH = 12540,
+  SLASH_DOT = 12539,
+  JAPANESE_PUNCTUATION = [
+    [12288, 12351],
+    [65377, 65381],
+    [12539, 12540],
+    [65281, 65295],
+    [65306, 65311],
+    [65339, 65343],
+    [65371, 65376],
+    [65504, 65518],
+  ],
+  JAPANESE_POINTS = [
+    [12352, 12447],
+    [12448, 12543],
+    [65377, 65381],
+    [65382, 65439],
+    ...JAPANESE_PUNCTUATION,
+    [65313, 65338],
+    [65345, 65370],
+    [65296, 65305],
+    [19968, 40959],
+    [13312, 19903],
+  ],
+  ROMAJI_POINTS = [
+    [0, 127],
     [256, 257],
     [274, 275],
     [298, 299],
     [332, 333],
     [362, 363],
   ],
-  U = [
+  ENGLISH_PUNCT_POINTS = [
+    [32, 47],
+    [58, 63],
+    [91, 96],
+    [123, 126],
     [8216, 8217],
     [8220, 8221],
-  ],
-  $ = [L, ...P],
-  x = [[32, 47], [58, 63], [91, 96], [123, 126], ...U];
-var q =
+  ];
+var numberIsNaN =
     Number.isNaN ||
     function (t) {
       return "number" == typeof t && t != t;
     },
-  D = Object.prototype.hasOwnProperty;
-const mergeWithDefaultOptions = (t = {}) => Object.assign({}, a, t),
+  hasOwnProperty = Object.prototype.hasOwnProperty;
+const mergeWithDefaultOptions = (t = {}) =>
+    Object.assign({}, DEFAULT_OPTIONS, t),
   _ = {
     a: "\u3042",
     i: "\u3044",
@@ -801,7 +852,7 @@ const mergeWithDefaultOptions = (t = {}) => Object.assign({}, a, t),
   },
   G = { ya: "\u3083", yi: "\u3043", yu: "\u3085", ye: "\u3047", yo: "\u3087" },
   V = { a: "\u3041", i: "\u3043", u: "\u3045", e: "\u3047", o: "\u3049" },
-  F = {
+  ADDITIONAL_MAPS = {
     sh: "sy",
     ch: "ty",
     cy: "ty",
@@ -877,17 +928,21 @@ const onInput = ({
       selectionEnd: n,
     }),
   onCompositionEnd = () => console.log("compositionend"),
-  at = {
+  compositionEvents = {
     input: onInput,
     compositionstart: onCompositionStart,
     compositionupdate: onCompositionUpdate,
     compositionend: onCompositionEnd,
   },
   addDebugListeners = (t) => {
-    Object.entries(at).forEach(([e, n]) => t.addEventListener(e, n));
+    Object.entries(compositionEvents).forEach(([e, n]) =>
+      t.addEventListener(e, n)
+    );
   },
   removeDebugListeners = (t) => {
-    Object.entries(at).forEach(([e, n]) => t.removeEventListener(e, n));
+    Object.entries(compositionEvents).forEach(([e, n]) =>
+      t.removeEventListener(e, n)
+    );
   },
   ot = ["TEXTAREA", "INPUT"];
 let rt = 0;
@@ -897,7 +952,7 @@ const newId = () => ((rt += 1), `${Date.now()}${rt}`),
   isKanaAsSymbol = (t) => ["\u30f6", "\u30f5"].includes(t),
   it = { a: "\u3042", i: "\u3044", u: "\u3046", e: "\u3048", o: "\u3046" };
 let st = null;
-const ct = {
+const hiraganaToRomajiMap = {
     "\u3042": "a",
     "\u3044": "i",
     "\u3046": "u",
@@ -977,7 +1032,7 @@ const ct = {
     "\u3094\u3047": "ve",
     "\u3094\u3049": "vo",
   },
-  ut = {
+  specialCharMap = {
     "\u3002": ".",
     "\u3001": ",",
     "\uff1a": ":",
@@ -998,7 +1053,7 @@ const ct = {
     "\uff5d": "}",
     "\u3000": " ",
   },
-  lt = [
+  vowels = [
     "\u3042",
     "\u3044",
     "\u3046",
@@ -1008,16 +1063,16 @@ const ct = {
     "\u3086",
     "\u3088",
   ],
-  ft = { "\u3083": "ya", "\u3085": "yu", "\u3087": "yo" },
-  pt = { "\u3043": "yi", "\u3047": "ye" },
-  ht = {
+  smallYaMap = { "\u3083": "ya", "\u3085": "yu", "\u3087": "yo" },
+  ySmallVowelMap = { "\u3043": "yi", "\u3047": "ye" },
+  smallVowelMap = {
     "\u3041": "a",
     "\u3043": "i",
     "\u3045": "u",
     "\u3047": "e",
     "\u3049": "o",
   },
-  gt = [
+  iVowelList = [
     "\u304d",
     "\u306b",
     "\u3072",
@@ -1030,8 +1085,8 @@ const ct = {
     "\u304f",
     "\u3075",
   ],
-  mt = { "\u3057": "sh", "\u3061": "ch", "\u3058": "j", "\u3062": "j" },
-  dt = {
+  shijiMap = { "\u3057": "sh", "\u3061": "ch", "\u3058": "j", "\u3062": "j" },
+  smallKanaMap = {
     "\u3063": "",
     "\u3083": "ya",
     "\u3085": "yu",
@@ -1042,7 +1097,7 @@ const ct = {
     "\u3047": "e",
     "\u3049": "o",
   },
-  jt = {
+  validRomajiSet = {
     b: "b",
     c: "t",
     d: "d",
@@ -1062,7 +1117,7 @@ const ct = {
     x: "x",
     z: "z",
   },
-  yt = memoizeOne((t, e) => {
+  memoizedMap = memoizeOne((t, e) => {
     let n = getKanaToRomajiTree(t);
     return e && (n = mergeCustomMapping(n, e)), n;
   }, dequal),
@@ -1070,7 +1125,7 @@ const ct = {
   isCharJaSpace = (t) => "\u3000" === t,
   isCharJaNum = (t) => /[\uff10-\uff19]/.test(t),
   isCharEnNum = (t) => /[0-9]/.test(t),
-  Et = {
+  CHAR_TYPE = {
     EN: "en",
     JA: "ja",
     EN_NUM: "englishNumeral",
@@ -1088,9 +1143,9 @@ const ct = {
   isInvalidMatcher = (t, e) =>
     (e && ![...e].some(isKanji)) || (!e && isKana(t));
 export {
-  n as ROMANIZATIONS,
-  e as TO_KANA_METHODS,
-  t as VERSION,
+  ROMANIZATIONS as ROMANIZATIONS,
+  TO_KANA_METHODS as TO_KANA_METHODS,
+  version as VERSION,
   bind,
   isHiragana,
   isJapanese,

@@ -4,7 +4,9 @@
   "description": "A userscript helper for WaniKani",
   "main": "dist/index.user.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dist": "tsc",
+    "dist:analyze": "cd patches && tsc"
   },
   "author": "theusaf",
   "license": "MIT",
