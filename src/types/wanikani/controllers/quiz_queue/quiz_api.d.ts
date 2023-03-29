@@ -12,11 +12,25 @@ declare module "controllers/quiz_queue/quiz_api" {
 
     /**
      * Submits a question result.
+     *
+     * ---
+     * * This method may emit a `connectionTimeout` event if the request
+     *   takes too long.
+     *   * This event is picked up by the `TimeoutController`.
+     * * This method will save progress to the API.
+     * ---
+     * * It is called from `QuizQueueController#initialize`.
      */
     submitFailed(): Promise<void>;
 
     /**
      * Submits a question result.
+     *
+     * ---
+     * * Emits a `connectionTimeout` event if the request takes too long.
+     * * This method will save progress to the API.
+     * ---
+     * * Called by `QuizQueue#submitAnswer`.
      *
      * @param params
      */

@@ -29,42 +29,114 @@ interface WaniKaniEvents {
 export interface Events {
   /**
    * Fired when the connection is lost.
+   *
+   * ---
+   * * Listened to by `TimeoutController`.
+   * ---
+   * * Emitted by `QuizAPI#submitFailed` when the connection is lost.
+   * * Emitted by `QuizAPI#itemComplete` when the connection is lost.
    */
   ConnectionTimeout: "connectionTimeout";
   /**
    * Fired when a question is answered.
+   *
+   * ---
+   * * Listened to by `AdditionalContentController` to close the additional
+   *   content section.
+   * * Listened to by `ItemInfoController` to enable the item info section.
+   *   It may also show the item info section.
+   * * Listened to by `QuizAudioController` to play the audio.
+   * * Listened to by `QuizStatisticsController` to update the statistics
+   *   display.
+   * * Listened to by `SubjectInfoController` to update the subject info
+   *   display.
+   * ---
+   * * Emitted by `QuizQueue#submitAnswer`.
    */
   QuestionAnswered: "didAnswerQuestion";
   /**
    * Fired when a subject is completed.
+   *
+   * ---
+   * * Listened to by `QuizStatisticsController` to update the remaining
+   *   items statistic.
+   * * Listened to by `SubjectCountStatisticsController` to update the
+   *   remaining items statistic.
+   * ---
+   * * Emitted by `QuizQueue#submitAnswer` when the subject is completed.
    */
   SubjectCompleted: "didCompleteSubject";
   /**
    * Fired when the SRS level of a subject changes.
+   *
+   * ---
+   * * Listened to by `QuizHeaderController` to display the new SRS level
+   *   for the item.
+   * ---
+   * * Emitted by `SRSManager#updateSRS`.
    */
   SRSChanged: "didChangeSRS";
   /**
    * Fired when the user's synonyms are updated.
+   *
+   * ---
+   * * Listened to by `QuizUserSynonymsController` to update the user's
+   *   synonyms for a subject in memory.
+   * ---
+   * * Emitted by `UserSynonymsController#connect`.
    */
   UserSynonymsUpdated: "didUpdateUserSynonyms";
   /**
    * Fired when a wrap-up observer is registered.
+   *
+   * ---
+   * * Listened to by `WrapUpManager` to add the observer to its list and
+   *   call its `onRegistration` callback.
+   * ---
+   * * Emitted by `WrapUpController#toggle` on the first toggle.
    */
   WrapUpObserverRegistration: "registerWrapUpObserver";
   /**
    * Fired when the quiz progress is updated.
+   *
+   * ---
+   * * Listened to by `QuizProgressController` to update the progress bar.
+   * ---
+   * * Emitted by `QuizQueue#submitAnswer` when the subject is completed.
+   * * Emitted by `QuizQueue#nextItem` when there are no more items.
+   * * Emitted by `QuizQueue` at the start of the quiz (when the queue
+   *   is created).
    */
   QuizProgressUpdated: "updateQuizProgress";
   /**
    * Fired when the next question is about to be displayed.
+   *
+   * ---
+   * * Listened to by `AdditionalContentController` to close the additional
+   *   content section.
+   * * Listened to by `ItemInfoController` to disable the item info section.
+   * * Listened to by `QuizAudioController` to stop the audio.
+   * * Listened to by `QuizHeaderController` to update the quiz header or
+   *   css classes.
+   * * Listened to by `QuizInputController` to update the input field's
+   *   placeholder and labels.
+   * ---
+   * * Emitted by `QuizQueue#nextItem` when there are more items.
    */
   NextQuestionWillDisplay: "willShowNextQuestion";
   /**
    * Fired when audio is about to play.
+   *
+   * ---
+   * * Emitted by `QuizAudioController#play` if enabled.
    */
   AudioWillPlay: "audioWillPlay";
   /**
    * Fired when content is about to be opened.
+   *
+   * ---
+   * * Emitted by `AudioPlayerController#play` if not already
+   *   playing audio.
    */
   ContentWillOpen: "willOpenContent";
 }

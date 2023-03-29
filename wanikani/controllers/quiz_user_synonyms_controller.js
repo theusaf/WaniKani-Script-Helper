@@ -1,9 +1,9 @@
 import { Controller } from "@hotwired/stimulus";
 export default class extends Controller {
   static targets = ["synonyms"];
-  #t;
+  #subjectSynonyms;
   initialize() {
-    this.#t = JSON.parse(this.synonymsTarget.innerText);
+    this.#subjectSynonyms = JSON.parse(this.synonymsTarget.innerText);
   }
   connect() {
     window.addEventListener("didUpdateUserSynonyms", this.#n);
@@ -13,9 +13,9 @@ export default class extends Controller {
   }
   #n = (t) => {
     const { subjectId: n, synonyms: e } = t.detail;
-    this.#t[n] = e;
+    this.#subjectSynonyms[n] = e;
   };
   synonymsForSubjectId(t) {
-    return this.#t[t] || [];
+    return this.#subjectSynonyms[t] || [];
   }
 }
