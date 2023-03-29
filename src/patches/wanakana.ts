@@ -13,7 +13,7 @@ function isCharInRange(t = "", e: number, n: number) {
   const a = t.charCodeAt(0);
   return e <= a && a <= n;
 }
-function isCharJapanese(t = "") {
+export function isCharJapanese(t = "") {
   return JAPANESE_POINTS.some(([e, n]) => isCharInRange(t, e, n));
 }
 function isJapanese(text = "", regex?: RegExp) {
@@ -263,21 +263,21 @@ function IME_MODE_MAP(t: any) {
   const e = JSON.parse(JSON.stringify(t));
   return (e.n.n = { "": "\u3093" }), (e.n[" "] = { "": "\u3093" }), e;
 }
-function isCharUpperCase(t = "") {
+export function isCharUpperCase(t = "") {
   return !isEmpty(t) && isCharInRange(t, CAPITAL_A, CAPITAL_Z);
 }
-function isCharLongDash(t = "") {
+export function isCharLongDash(t = "") {
   return !isEmpty(t) && t.charCodeAt(0) === LONG_DASH;
 }
-function isCharSlashDot(t = "") {
+export function isCharSlashDot(t = "") {
   return !isEmpty(t) && t.charCodeAt(0) === SLASH_DOT;
 }
-function isCharHiragana(t = "") {
+export function isCharHiragana(t = "") {
   return (
     !isEmpty(t) && (!!isCharLongDash(t) || isCharInRange(t, HIRA_A, HIRA_KE))
   );
 }
-function hiraganaToKatakana(t = "") {
+export function hiraganaToKatakana(t = "") {
   const e: string[] = [];
   return (
     t.split("").forEach((t) => {
@@ -291,7 +291,7 @@ function hiraganaToKatakana(t = "") {
     e.join("")
   );
 }
-function toKana(t = "", n = {}, a?: any) {
+function toKana(t = "", n = {}, a?: any): string {
   let i: any;
   return (
     a
@@ -311,11 +311,11 @@ function toKana(t = "", n = {}, a?: any) {
       .join("")
   );
 }
-function splitIntoConvertedKana(t = "", e: any = {}, n: any) {
+export function splitIntoConvertedKana(t = "", e: any = {}, n: any): string[] {
   const { IMEMode: a, useObsoleteKana: i, customKanaMapping: r } = e;
   return n || (n = et(a, i, r)), applyMapping(t.toLowerCase(), n, !a);
 }
-function makeOnInput(t: any) {
+export function makeOnInput(t: any) {
   let e: any;
   const n: any = Object.assign({}, mergeWithDefaultOptions(t), {
       IMEMode: t.IMEMode || !0,
@@ -328,7 +328,7 @@ function makeOnInput(t: any) {
       convertInput(t, n, a, i);
   };
 }
-function convertInput(t: HTMLInputElement, e: any, n: any, a: any) {
+export function convertInput(t: HTMLInputElement, e: any, n: any, a: any) {
   const [i, r, o] = splitInput(t.value, t.selectionEnd, a),
     s = toKana(r as string, e, n);
   if (r !== s) {
@@ -449,7 +449,7 @@ function unbind(t: HTMLElement, e = !1) {
     untrackListeners(n),
     !0 === e && removeDebugListeners(t);
 }
-function isCharRomaji(t = "") {
+export function isCharRomaji(t = "") {
   return !isEmpty(t) && ROMAJI_POINTS.some(([e, n]) => isCharInRange(t, e, n));
 }
 function isRomaji(t = "", e?: any) {
@@ -462,10 +462,10 @@ function isRomaji(t = "", e?: any) {
     })
   );
 }
-function isCharKatakana(t = "") {
+export function isCharKatakana(t = "") {
   return isCharInRange(t, KATA_A, LONG_DASH);
 }
-function isCharKana(t = "") {
+export function isCharKana(t = "") {
   return !isEmpty(t) && (isCharHiragana(t) || isCharKatakana(t));
 }
 function isKana(t = "") {
@@ -477,7 +477,7 @@ function isHiragana(t = "") {
 function isKatakana(t = "") {
   return !isEmpty(t) && [...t].every(isCharKatakana);
 }
-function isCharKanji(t = "") {
+export function isCharKanji(t = "") {
   return isCharInRange(t, KANJI_ONE, KANJI_LAST);
 }
 function isKanji(t = "") {
@@ -491,7 +491,7 @@ function isMixed(t = "", e = { passKanji: !0 }) {
     (n.some(isHiragana) || n.some(isKatakana)) && n.some(isRomaji) && !a
   );
 }
-function katakanaToHiragana(
+export function katakanaToHiragana(
   t = "",
   e: (a: string) => string,
   {
@@ -597,7 +597,7 @@ function toRomaji(t = "", e = {}, n?: any): string {
       .join("")
   );
 }
-function splitIntoRomaji(text: string, e?: WanaKanaOptions, n?: any) {
+export function splitIntoRomaji(text: string, e?: WanaKanaOptions, n?: any): string[] {
   n || (n = memoizedMap(e.romanization, e.customRomajiMapping));
   return applyMapping(
     katakanaToHiragana(
@@ -609,7 +609,7 @@ function splitIntoRomaji(text: string, e?: WanaKanaOptions, n?: any) {
     !e.IMEMode
   );
 }
-function isCharEnglishPunctuation(t = "") {
+export function isCharEnglishPunctuation(t = "") {
   return (
     !isEmpty(t) && ENGLISH_PUNCT_POINTS.some(([e, n]) => isCharInRange(t, e, n))
   );
@@ -632,12 +632,12 @@ function toKatakana(t = "", e = {}) {
   }
   return hiraganaToKatakana(t);
 }
-function isCharJapanesePunctuation(t = "") {
+export function isCharJapanesePunctuation(t = "") {
   return (
     !isEmpty(t) && JAPANESE_PUNCTUATION.some(([e, n]) => isCharInRange(t, e, n))
   );
 }
-function getType(char: string, e = !1) {
+export function getType(char: string, e = !1) {
   const {
     EN: EN,
     JA: a,
@@ -1145,12 +1145,12 @@ const hiraganaToRomajiMap = {
   memoizedMap = memoizeOne((t, e) => {
     let n = getKanaToRomajiTree(t);
     return e && (n = mergeCustomMapping(n, e)), n;
-  }, dequal),
-  isCharEnSpace = (t: string) => " " === t,
-  isCharJaSpace = (t: string) => "\u3000" === t,
-  isCharJaNum = (t: string) => /[\uff10-\uff19]/.test(t),
-  isCharEnNum = (t: string) => /[0-9]/.test(t),
-  CHAR_TYPE = {
+  }, dequal);
+export const isCharEnSpace = (t: string) => " " === t;
+export const isCharJaSpace = (t: string) => "\u3000" === t;
+export const isCharJaNum = (t: string) => /[\uff10-\uff19]/.test(t);
+export const isCharEnNum = (t: string) => /[0-9]/.test(t);
+const CHAR_TYPE = {
     EN: "en",
     JA: "ja",
     EN_NUM: "englishNumeral",
