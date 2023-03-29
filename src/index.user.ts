@@ -1,15 +1,18 @@
 // ==UserScript==
-// @name         WaniKani Hotwired Framework
-// @namespace    https://theusaf.org
-// @author       theusaf
-// @description  A framework for writing scripts for WaniKani, focused on WaniKani's Hotwired actions.
-// @version      1.0.0
-// @match        https://www.wanikani.com/*
-// @match        https://preview.wanikani.com/*
-// @copyright    2023 theusaf
-// @license      MIT
-// @run-at       document-start
-// @grant        none
+// @name             WaniKani Hotwired Framework
+// @name:ja          WaniKaniのHotwiredのフレームワーク
+// @namespace        https://theusaf.org
+// @homepage         https://github.com/theusaf/wkhf
+// @author           theusaf
+// @description      A framework for writing scripts for WaniKani, focused on WaniKani's Hotwired actions.
+// @description:ja   WaniKaniのHotwiredアクションに焦点を当てた、WaniKaniのスクリプトを作るためのフレームワークです。
+// @version          1.0.0
+// @match            https://www.wanikani.com/*
+// @match            https://preview.wanikani.com/*
+// @copyright        2023 theusaf
+// @license          MIT
+// @run-at           document-start
+// @grant            none
 // ==/UserScript==
 
 import {
@@ -159,9 +162,11 @@ enum Events {
     }
   }
   const wkhfScripts = new Map<string, WKHFScript>();
+  let nextUrl = window.location.href;
   window.addEventListener(
     "turbo:before-visit",
     (event: TurboBeforeVisitEvent) => {
+      nextUrl = event.detail.url;
       for (const script of wkhfScripts.values()) {
         if (script.isActivated || script.ignoreActiveState) {
           script.onBeforeVisit?.(event);
@@ -175,7 +180,9 @@ enum Events {
       for (const script of wkhfScripts.values()) {
         if (script.isActivated || script.ignoreActiveState) {
           script.onBeforeCache?.(event);
-          if (script.isActivated) script.deactivate();
+          if (script.isActivated && !script.doesLocationMatch(nextUrl)) {
+            script.deactivate();
+          }
         }
       }
     }
