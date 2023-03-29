@@ -74,23 +74,105 @@ export type ScriptCallback<K extends Event = Event> =
   | ((event: K) => void)
   | (() => void);
 export interface WKHFScriptParams {
+  /**
+   * The matcher used to determine whether the script should
+   * be active on a given location.
+   *
+   * This can be a regular expression, a string
+   * (glob pattern), or a function.
+   */
   locationMatcher: LocationMatcher;
+  /**
+   * Whether the script should listen to events even if it is not active.
+   */
   ignoreActiveState?: boolean;
+  /**
+   * A callback that is fired before a new page is visited.
+   * This occurs during turbo:before-visit, regardless of whether
+   * the script matches both the current and next location.
+   */
   onBeforeVisit?: ScriptCallback<TurboBeforeVisitEvent>;
+  /**
+   * A callback that is fired before the page is cached.
+   * This occurs during turbo:before-cache, regardless of whether
+   * the script matches both the current and next location.
+   */
   onBeforeCache?: ScriptCallback<TurboBeforeCacheEvent>;
+  /**
+   * A callback that is fired when the page is loaded.
+   * This occurs during turbo:load, regardless of whether
+   * the script matches both the current and next location.
+   */
   onLoad?: ScriptCallback<TurboLoadEvent>;
+  /**
+   * A callback that is fired when the script is activated.
+   * Use it to set up listeners, observers, etc.
+   */
   activate?: () => void;
+  /**
+   * A callback that is fired when the script is deactivated.
+   * Use it to remove listeners, observers, things that you
+   * do not want to be cached by Turbo, etc.
+   */
   deactivate?: () => void;
 }
 export interface WKHFScript {
+  /**
+   * The matcher used to determine whether the script should
+   * be active on a given location.
+   */
   locationMatcher: LocationMatcher;
-  isActivated: boolean;
+  /**
+   * Whether the script is active.
+   */
+  isActive: boolean;
+  /**
+   * Whether the script should listen to events even if it is not active.
+   */
   ignoreActiveState: boolean;
+  /**
+   * Fired when the page is about to be visited. This occurs during
+   * turbo:before-visit.
+   *
+   * @param event The event object.
+   */
   onBeforeVisit: ScriptCallback<TurboBeforeVisitEvent>;
+  /**
+   * Fired when the page is about to be cached. This occurs during
+   * turbo:before-cache.
+   *
+   * @param event The event object.
+   */
   onBeforeCache: ScriptCallback<TurboBeforeCacheEvent>;
+  /**
+   * Fired when the page is loaded. This occurs during turbo:load.
+   *
+   * @param event The event object.
+   */
   onLoad: ScriptCallback<TurboLoadEvent>;
+  /**
+   * Activates the script. This is called when the script is registered or when
+   * the page changes to a location that matches the script's location matcher.
+   * This occurs during turbo:load.
+   */
   activate: () => void;
+  /**
+   * Deactivates the script. This is called when the script is unregistered or
+   * when the page changes to a location that does not match the script's
+   * location matcher. This occurs during turbo:before-cache.
+   */
   deactivate: () => void;
+  /**
+   * Checks whether the script's location matcher matches the given location.
+   *
+   * @param url The location href to check.
+   */
+  doesLocationMatch(url: string): boolean;
+  setOnBeforeVisit(callback: ScriptCallback<TurboBeforeVisitEvent>): void;
+  setOnBeforeCache(callback: ScriptCallback<TurboBeforeCacheEvent>): void;
+  setOnLoad(callback: ScriptCallback<TurboLoadEvent>): void;
+  setActivate(callback: () => void): void;
+  setDeactivate(callback: () => void): void;
 }
 
 export type EventListenerCallback<K extends keyof WaniKaniEvents> = (

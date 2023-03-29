@@ -91,7 +91,7 @@ enum Events {
   // Loading/unloading scripts
   class WKHFScript {
     locationMatcher: LocationMatcher;
-    isActivated: boolean;
+    isActive: boolean;
     ignoreActiveState: boolean;
     #onBeforeVisit?: ScriptCallback<TurboBeforeVisitEvent>;
     #onBeforeCache?: ScriptCallback<TurboBeforeCacheEvent>;
@@ -114,7 +114,7 @@ enum Events {
       this.#onLoad = onLoad;
       this.#activate = activate;
       this.#deactivate = deactivate;
-      this.isActivated = false;
+      this.isActive = false;
       this.ignoreActiveState = ignoreActiveState;
     }
 
@@ -142,7 +142,7 @@ enum Events {
     activate() {
       try {
         this.#activate?.();
-        this.isActivated = true;
+        this.isActive = true;
       } catch (e) {
         console.error(e);
       }
@@ -150,7 +150,7 @@ enum Events {
     deactivate() {
       try {
         this.#deactivate?.();
-        this.isActivated = false;
+        this.isActive = false;
       } catch (e) {
         console.error(e);
       }
@@ -202,7 +202,7 @@ enum Events {
     (event: TurboBeforeVisitEvent) => {
       nextUrl = event.detail.url;
       for (const script of wkhfScripts.values()) {
-        if (script.isActivated || script.ignoreActiveState) {
+        if (script.isActive || script.ignoreActiveState) {
           script.onBeforeVisit(event);
         }
       }
@@ -212,9 +212,9 @@ enum Events {
     "turbo:before-cache",
     (event: TurboBeforeCacheEvent) => {
       for (const script of wkhfScripts.values()) {
-        if (script.isActivated || script.ignoreActiveState) {
+        if (script.isActive || script.ignoreActiveState) {
           script.onBeforeCache(event);
-          if (script.isActivated && !script.doesLocationMatch(nextUrl)) {
+          if (script.isActive && !script.doesLocationMatch(nextUrl)) {
             script.deactivate();
           }
         }
@@ -225,7 +225,7 @@ enum Events {
     for (const script of wkhfScripts.values()) {
       if (script.doesLocationMatch(window.location.href)) {
         script.onLoad(event);
-        if (!script.isActivated) script.activate();
+        if (!script.isActive) script.activate();
       }
     }
   });
@@ -249,12 +249,20 @@ enum Events {
   }
 
   function registerScript(name: string, script: WKHFScriptParams) {
-    if (wkhfScripts.has(name))
+    if (wkhfScripts.has(name)) {
       throw new Error(`Script '${name}' already exists`);
-    wkhfScripts.set(name, new WKHFScript(script));
-    return wkhfScripts.get(name);
+    }
+    const scriptReference = new WKHFScript(script);
+    wkhfScripts.set(name, scriptReference);
+    if (scriptReference.doesLocationMatch(window.location.href)) {
+      scriptReference.activate();
+    }
+    return scriptReference;
   }
   function unregisterScript(name: string) {
+    const script = fetchScript(name);
+    if (!script) return;
+    if (script.isActive) script.deactivate();
     wkhfScripts.delete(name);
   }
   function fetchScript(name: string) {
