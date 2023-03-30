@@ -40,7 +40,7 @@ declare module "events/did_answer_question" {
     subject_category: string;
     characters?: string | Chactacters;
     type: "Kanji" | "Vocabulary";
-    primary_reading_type?: string;
+    primary_reading_type?: "onyomi" | "kunyomi" | "nanori";
     onyomi?: string[];
     kunyomi?: string[];
     nanori?: string[];
