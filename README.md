@@ -15,6 +15,7 @@ Since WaniKani is becoming a single-page application, I recommend the following:
 ```
 
 There are a few ways to use this framework:
+
 1. Use the `wkhf` object directly:
 
 ```js
@@ -35,9 +36,9 @@ if (window.wkhf) {
 
 ```js
 const {
-  default: AnswerChecker,  // Patched original module
-  hasDigits,               // Method that was not exported originally
-  wkhfRegisterPlugin       // New method created by wkhf
+  default: AnswerChecker, // Patched original module
+  hasDigits, // Method that was not exported originally
+  wkhfRegisterPlugin, // New method created by wkhf
 } = await import("lib/answer_checker/answer_checker");
 
 // ...

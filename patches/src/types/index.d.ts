@@ -1,33 +1,33 @@
- interface PronounciationSource {
+interface PronounciationSource {
   url: string;
   content_type: string;
 }
 
- interface Pronounciation {
+interface Pronounciation {
   actor: {
     id: number;
   };
   sources: PronounciationSource[];
 }
 
- interface Reading {
+interface Reading {
   reading: string;
   pronounciations: Pronounciation[];
 }
 
- interface Chactacters {
+interface Chactacters {
   url: string;
   meaning: string;
 }
 
- interface AuxiliaryData {
+interface AuxiliaryData {
   type: string;
   message: string;
 }
- interface AuxiliaryReading extends AuxiliaryData {
+interface AuxiliaryReading extends AuxiliaryData {
   reading: string;
 }
- interface AuxiliaryMeaning extends AuxiliaryData {
+interface AuxiliaryMeaning extends AuxiliaryData {
   meaning: string;
 }
 

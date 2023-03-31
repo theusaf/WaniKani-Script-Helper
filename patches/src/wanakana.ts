@@ -597,7 +597,11 @@ function toRomaji(t = "", e = {}, n?: any): string {
       .join("")
   );
 }
-export function splitIntoRomaji(text: string, e?: WanaKanaOptions, n?: any): string[] {
+export function splitIntoRomaji(
+  text: string,
+  e?: WanaKanaOptions,
+  n?: any
+): string[] {
   n || (n = memoizedMap(e.romanization, e.customRomajiMapping));
   return applyMapping(
     katakanaToHiragana(
