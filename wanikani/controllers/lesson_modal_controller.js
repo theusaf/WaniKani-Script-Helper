@@ -1,34 +1,42 @@
 import { Controller } from "@hotwired/stimulus";
 export default class extends Controller {
-  #t;
   static targets = ["button"];
+  initialize() {
+    this.handleTab = this.handleTab.bind(this);
+  }
   connect() {
-    window.keyboardManager.setModalMode(), this.#e(), this.#r();
+    window.keyboardManager.setModalMode(),
+      this.registerHotKeys(),
+      this.resetFocus();
   }
   disconnect() {
     window.keyboardManager.clearModalMode();
   }
-  #r = () => {
-    (this.#t = this.buttonTargets.findIndex(
+  resetFocus() {
+    (this.currentTabIndex = this.buttonTargets.findIndex(
       (t) => "true" === t.dataset.default
     )),
-      this.buttonTargets[this.#t].firstElementChild.focus();
-  };
-  #a = (t) => {
+      this.buttonTargets[this.currentTabIndex].firstElementChild.focus();
+  }
+  handleTab(t) {
     t.stopPropagation(),
       t.preventDefault(),
-      ++this.#t >= this.buttonTargets.length && (this.#t = 0),
-      this.buttonTargets[this.#t].firstElementChild.focus();
-  };
-  #e = () => {
-    window.keyboardManager.registerHotKey({ key: "Tab", callback: this.#a }),
+      ++this.currentTabIndex >= this.buttonTargets.length &&
+        (this.currentTabIndex = 0),
+      this.buttonTargets[this.currentTabIndex].firstElementChild.focus();
+  }
+  registerHotKeys() {
+    window.keyboardManager.registerHotKey({
+      key: "Tab",
+      callback: this.handleTab,
+    }),
       this.buttonTargets.forEach((t) => {
         const e = t.firstElementChild,
-          r = JSON.parse(e.dataset.hotkeys),
-          a = () => e.click();
-        r.forEach((t) =>
-          window.keyboardManager.registerHotKey({ key: t, callback: a })
+          a = JSON.parse(e.dataset.hotkeys),
+          r = () => e.click();
+        a.forEach((t) =>
+          window.keyboardManager.registerHotKey({ key: t, callback: r })
         );
       });
-  };
+  }
 }

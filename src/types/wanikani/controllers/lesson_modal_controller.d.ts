@@ -5,6 +5,11 @@ declare module "controllers/lesson_modal_controller" {
     get buttonTarget(): HTMLElement;
     get buttonTargets(): HTMLElement[];
     get hasButtonTarget(): boolean;
+
+    currentTabIndex: number;
+
+    initialize(): void;
+
     /**
      * Enables modal mode.
      */
@@ -13,5 +18,11 @@ declare module "controllers/lesson_modal_controller" {
      * Disables modal mode.
      */
     disconnect(): void;
+
+    resetFocus(): void;
+
+    handleTab(): void;
+
+    registerHotKeys(): void;
   }
 }
