@@ -7,31 +7,27 @@ export default class extends Controller {
     preferredVoiceActorId: { type: Number, default: 1 },
     autoPlay: { type: Boolean, default: !1 },
   };
-  // I don't really know what these variables are
-  // just guessing
-  #isPlaying = !1;
-  #isEnabled = !1;
-  #isStopping = !1;
   initialize() {
-    this.audioTarget.addEventListener("ended", this.#onAudioEnded);
+    (this.playing = !1),
+      (this.canPlay = !1),
+      (this.clearOnStop = !1),
+      (this.play = this.play.bind(this)),
+      (this.stop = this.stop.bind(this)),
+      (this.willShowNextQuestion = this.willShowNextQuestion.bind(this)),
+      (this.didAnswerQuestion = this.didAnswerQuestion.bind(this)),
+      this.audioTarget.addEventListener("ended", this.stop);
   }
   connect() {
-    window.addEventListener(
-      "willShowNextQuestion",
-      this.#onWillShowNextQuestion
-    ),
-      window.addEventListener("didAnswerQuestion", this.#onDidAnswerQuestion);
+    window.addEventListener("willShowNextQuestion", this.willShowNextQuestion),
+      window.addEventListener("didAnswerQuestion", this.didAnswerQuestion);
   }
   disconnect() {
     window.removeEventListener(
       "willShowNextQuestion",
-      this.#onWillShowNextQuestion
+      this.willShowNextQuestion
     ),
-      window.removeEventListener(
-        "didAnswerQuestion",
-        this.#onDidAnswerQuestion
-      ),
-      this.#onAudioEnded();
+      window.removeEventListener("didAnswerQuestion", this.didAnswerQuestion),
+      this.stop();
   }
   playButtonTargetConnected(t) {
     const e = t.dataset.hotkey;
@@ -45,62 +41,59 @@ export default class extends Controller {
       (window.keyboardManager.deregisterHotKey({ key: e, callback: this.play }),
       (t.dataset.hotkeyRegistered = !1));
   }
-  #loadAudio = (t) => {
+  loadAudio(t) {
     this.audioTarget.replaceChildren(...t),
       this.audioTarget.load(),
-      (this.#isEnabled = t.length > 0),
-      this.playButtonTarget.classList.toggle(
-        this.disabledClass,
-        !this.#isEnabled
-      ),
+      (this.canPlay = t.length > 0),
+      this.playButtonTarget.classList.toggle(this.disabledClass, !this.canPlay),
       (this.playButtonTarget.dataset.loaded = !0);
-  };
-  #onWillShowNextQuestion = () => {
-    this.#isPlaying ? (this.#isStopping = !0) : this.#stopPlaying();
-  };
-  #onDidAnswerQuestion = (t) => {
-    this.#stopPlaying();
+  }
+  willShowNextQuestion() {
+    this.playing ? (this.clearOnStop = !0) : this.clearSources();
+  }
+  didAnswerQuestion(t) {
+    this.clearSources();
     const {
         subjectWithStats: { subject: e },
         questionType: s,
         answer: i,
         results: a,
       } = t.detail,
-      sources = getSources({
+      o = getSources({
         subject: e,
         questionType: s,
         answer: i,
         results: a,
         preferredVoiceActorId: this.preferredVoiceActorIdValue,
       });
-    this.#loadAudio(sources),
-      this.#isEnabled &&
+    this.loadAudio(o),
+      this.canPlay &&
         this.autoPlayValue &&
         t.detail.results.passed &&
         this.play();
-  };
-  play = () => {
-    !this.#isPlaying &&
-      this.#isEnabled &&
+  }
+  play() {
+    !this.playing &&
+      this.canPlay &&
       (window.dispatchEvent(new CustomEvent("audioWillPlay")),
-      (this.#isPlaying = !0),
+      (this.playing = !0),
       this.iconTarget.classList.remove(this.stoppedClass),
       this.iconTarget.classList.add(this.playingClass),
       this.audioTarget.play());
-  };
-  #onAudioEnded = () => {
-    this.#isStopping
-      ? this.#stopPlaying()
-      : ((this.#isPlaying = !1),
+  }
+  stop() {
+    this.clearOnStop
+      ? this.clearSources()
+      : ((this.playing = !1),
         this.iconTarget.classList.add(this.stoppedClass),
         this.iconTarget.classList.remove(this.playingClass),
         this.audioTarget.pause(),
         (this.audioTarget.currentTime = 0));
-  };
-  #stopPlaying = () => {
-    (this.#isStopping = !1),
-      this.#onAudioEnded(),
+  }
+  clearSources() {
+    (this.clearOnStop = !1),
+      this.stop(),
       (this.playButtonTarget.dataset.loaded = !1),
-      this.#loadAudio([]);
-  };
+      this.loadAudio([]);
+  }
 }

@@ -20,11 +20,24 @@ declare module "controllers/quiz_audio_controller" {
     get autoPlayValue(): boolean;
     set autoPlayValue(value: boolean);
     get hasAutoPlayValue(): boolean;
+
+    playing: boolean;
+    canPlay: boolean;
+    clearOnStop: boolean;
+
     initialize(): void;
     connect(): void;
     disconnect(): void;
     playButtonTargetConnected(target: HTMLElement): void;
     playButtonTargetDisconnected(target: HTMLElement): void;
+    willShowNextQuestion(): void;
+    didAnswerQuestion(): void;
+    clearSources(): void;
+    /**
+     * Loads the audio and prepares to play.
+     */
+    loadAudio(): void;
     play(): void;
+    stop(): void;
   }
 }
