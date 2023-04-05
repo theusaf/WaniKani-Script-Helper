@@ -9,6 +9,10 @@ declare module "controllers/quiz_queue/cached_queue" {
    * Used for storing quiz queue data.
    */
   export default class CachedQueue<T = any> {
+
+    data: Map<string, any[]>
+    cacheKey: string
+
     /**
      * Creates a new CachedQueue with the given key.
      *
