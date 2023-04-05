@@ -26,6 +26,8 @@ declare module "controllers/audio_player_controller" {
     get hasControlTarget(): boolean;
 
     playing: boolean;
+    observer: IntersectionObserver;
+
     initialize(): void;
     /**
      * Initializes listeners.
@@ -47,5 +49,9 @@ declare module "controllers/audio_player_controller" {
      * Pauses the audio.
      */
     stop(): void;
+
+    visibilityChange(observers: IntersectionObserverEntry[]): void;
+    registerHotKeys(): void;
+    deregisterHotKeys(): void;
   }
 }
