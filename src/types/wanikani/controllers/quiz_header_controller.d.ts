@@ -1,4 +1,6 @@
+
 declare module "controllers/quiz_header_controller" {
+import DidChangeSRSEvent from "events/did_change_srs_event";
   import { Controller } from "@hotwired/stimulus";
   export default class extends Controller {
     static targets: string[];
@@ -30,5 +32,7 @@ declare module "controllers/quiz_header_controller" {
     initialize(): void;
     connect(): void;
     disconnect(): void;
+    updateHeader(): void;
+    updateSRS(event: DidChangeSRSEvent): void;
   }
 }
