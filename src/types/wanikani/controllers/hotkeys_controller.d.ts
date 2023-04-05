@@ -5,6 +5,9 @@ declare module "controllers/hotkeys_controller" {
     get menuOpenClass(): string;
     get menuOpenClasses(): string;
     get hasMenuOpenClass(): boolean;
+
+    initialize(): void;
+
     /**
      * Registers the controller hotkey.
      */
@@ -17,5 +20,10 @@ declare module "controllers/hotkeys_controller" {
      * Toggles the menu.
      */
     toggleMenu(): void;
+
+    /**
+     * Clicks on the element it controls.
+     */
+    onHotKey(): void;
   }
 }
