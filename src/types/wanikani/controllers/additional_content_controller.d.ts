@@ -24,6 +24,8 @@ declare module "controllers/additional_content_controller" {
     get contentToggleTargets(): HTMLElement[];
     get hasContentToggleTarget(): boolean;
 
+    initialize(): void;
+
     /**
      * Registers listeners and hotkeys.
      */
@@ -73,6 +75,13 @@ declare module "controllers/additional_content_controller" {
      * @param event
      */
     contentContainerFromEvent(event: Event): HTMLElement;
+
+    /**
+     * Scrolls the page to the content container.
+     */
+    scrollContentIntoView(): void;
+
+    contentLoaded(): void;
 
     /**
      * Opens the additional content container.

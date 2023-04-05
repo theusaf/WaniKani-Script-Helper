@@ -2,6 +2,11 @@ import { Controller } from "@hotwired/stimulus";
 export default class extends Controller {
   static targets = ["content", "contentContainer", "contentToggle"];
   static classes = ["open", "toggleDisabled", "toggleOpen"];
+  initialize() {
+    (this.didAnswerQuestion = this.didAnswerQuestion.bind(this)),
+      (this.willShowNextQuestion = this.willShowNextQuestion.bind(this)),
+      (this.contentLoaded = this.contentLoaded.bind(this));
+  }
   connect() {
     this.contentContainerTargets.forEach(this.hideContainer),
       (this.currentContainer = null),
@@ -10,15 +15,15 @@ export default class extends Controller {
         "willShowNextQuestion",
         this.willShowNextQuestion
       ),
-      this.element.addEventListener("contentLoaded", this.#t),
+      this.element.addEventListener("contentLoaded", this.contentLoaded),
       this.contentToggleTargets.forEach((t) => {
-        const hotkey = t.dataset.hotkey;
-        hotkey &&
+        const e = t.dataset.hotkey;
+        e &&
           ((t.onHotkey = () => {
             t.click();
           }),
           window.keyboardManager.registerHotKey({
-            key: hotkey,
+            key: e,
             callback: t.onHotkey,
           }),
           (t.dataset.hotkeyRegistered = !0));
@@ -30,16 +35,16 @@ export default class extends Controller {
         "willShowNextQuestion",
         this.willShowNextQuestion
       ),
-      this.element.removeEventListener("contentLoaded", this.#t);
+      this.element.removeEventListener("contentLoaded", this.contentLoaded);
   }
-  contentToggleTargetDisconnected(target) {
-    const hotkey = target.dataset.hotkey;
-    hotkey &&
+  contentToggleTargetDisconnected(t) {
+    const e = t.dataset.hotkey;
+    e &&
       (window.keyboardManager.deregisterHotKey({
-        key: hotkey,
-        callback: target.onHotkey,
+        key: e,
+        callback: t.onHotkey,
       }),
-      (target.dataset.hotkeyRegistered = !1));
+      (t.dataset.hotkeyRegistered = !1));
   }
   showContainer(t) {
     t.style.display = "block";
@@ -47,34 +52,35 @@ export default class extends Controller {
   hideContainer(t) {
     t.style.display = "none";
   }
-  didAnswerQuestion = () => {
+  didAnswerQuestion() {
     this.currentContainer &&
       "didAnswerQuestion" === this.currentContainer.dataset.closeOnEvent &&
       this.close();
-  };
-  willShowNextQuestion = () => {
+  }
+  willShowNextQuestion() {
     this.currentContainer &&
       "willShowNextQuestion" === this.currentContainer.dataset.closeOnEvent &&
       this.close();
-  };
+  }
   contentContainerFromEvent(t) {
     const e = t.currentTarget.dataset,
       n = e.turboFrame || e.contentId;
     return this.contentContainerTargets.find((t) => t.id === n);
   }
-  open(event) {
+  open(t) {
     this.contentTarget.classList.add(this.openClass),
       this.currentContainer && this.hideContainer(this.currentContainer),
       this.contentToggleTargets.forEach((t) =>
         t.classList.remove(this.toggleOpenClass)
       );
-    const e = this.contentContainerFromEvent(event);
+    const e = this.contentContainerFromEvent(t);
     e &&
       (this.dispatch("willOpenContent"),
       (this.currentContainer = e),
       this.showContainer(this.currentContainer),
-      event.currentTarget.classList.add(this.toggleOpenClass),
-      "true" === this.currentContainer.dataset.loaded && this.#e());
+      t.currentTarget.classList.add(this.toggleOpenClass),
+      "true" === this.currentContainer.dataset.loaded &&
+        this.scrollContentIntoView());
   }
   close() {
     this.contentTarget.classList.remove(this.openClass),
@@ -91,14 +97,16 @@ export default class extends Controller {
         : this.open(t);
     } else t.preventDefault();
   }
-  #e = () => {
+  scrollContentIntoView() {
     const t =
       this.currentContainer.getBoundingClientRect().top +
       document.documentElement.scrollTop -
       60;
     window.scrollTo({ top: t, left: 0, behavior: "smooth" });
-  };
-  #t = () => {
-    this.currentContainer && this.currentContainer.dataset.loaded && this.#e();
-  };
+  }
+  contentLoaded() {
+    this.currentContainer &&
+      this.currentContainer.dataset.loaded &&
+      this.scrollContentIntoView();
+  }
 }
