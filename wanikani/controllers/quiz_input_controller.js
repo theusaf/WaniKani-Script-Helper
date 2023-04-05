@@ -18,39 +18,50 @@ export default class extends Controller {
     "form",
   ];
   static outlets = ["quiz-queue", "quiz-user-synonyms"];
-  #e = new AnswerChecker();
-  #t;
   initialize() {
-    (this.#n = !0),
-      window.addEventListener(
-        "willShowNextQuestion",
-        this.#onWillShowNextQuestion
-      ),
+    (this.inputEnabled = !0),
+      (this.answerChecker = new AnswerChecker()),
+      (this.updateQuestion = this.updateQuestion.bind(this)),
+      (this.scrollIntoView = this.scrollIntoView.bind(this)),
+      (this.focusOrNext = this.focusOrNext.bind(this)),
+      (this.handleBackspace = this.handleBackspace.bind(this)),
+      (this.handleKeyDown = this.handleKeyDown.bind(this)),
+      (this.handleInput = this.handleInput.bind(this)),
+      (this.disableInput = this.disableInput.bind(this)),
+      window.addEventListener("willShowNextQuestion", this.updateQuestion),
       this.formTarget.addEventListener("submit", (e) => {
         e.stopPropagation(), e.preventDefault();
       });
   }
   connect() {
-    window.keyboardManager.registerHotKey({ key: "Enter", callback: this.#a }),
+    this.inputTarget.addEventListener("keydown", this.handleKeyDown),
+      this.inputTarget.addEventListener("input", this.handleInput),
+      window.visualViewport.addEventListener("resize", this.scrollIntoView),
+      window.keyboardManager.registerHotKey({
+        key: "Enter",
+        callback: this.focusOrNext,
+      }),
       window.keyboardManager.registerHotKey({
         key: "Backspace",
-        callback: this.#s,
+        callback: this.handleBackspace,
       }),
+      window.addEventListener("connectionTimeout", this.disableInput),
       (this.element.dataset.hotkeyRegistered = !0),
       this.inputTarget.focus();
   }
   disconnect() {
-    window.removeEventListener(
-      "willShowNextQuestion",
-      this.#onWillShowNextQuestion
-    ),
+    window.visualViewport.removeEventListener("resize", this.scrollIntoView),
+      this.inputTarget.removeEventListener("keydown", this.handleKeyDown),
+      this.inputTarget.removeEventListener("input", this.handleInput),
+      window.removeEventListener("willShowNextQuestion", this.updateQuestion),
+      window.removeEventListener("connectionTimeout", this.disableInput),
       window.keyboardManager.deregisterHotKey({
         key: "Enter",
-        callback: this.#a,
+        callback: this.focusOrNext,
       }),
       window.keyboardManager.deregisterHotKey({
         key: "Backspace",
-        callback: this.#s,
+        callback: this.handleBackspace,
       }),
       (this.element.dataset.hotkeyRegistered = !1);
   }
@@ -58,80 +69,102 @@ export default class extends Controller {
     const t = this.questionTypeContainerTarget.dataset.questionType;
     e.nextItem(t);
   }
-  inputTargetConnected() {
-    this.inputTarget.addEventListener("keydown", this.#r),
-      this.inputTarget.addEventListener("input", this.#o);
+  focusOrNext() {
+    this.inputEnabled
+      ? (this.inputTarget.focus(), this.scrollIntoView())
+      : this.buttonTarget.click();
   }
-  #a = () => {
-    this.#n
-      ? this.inputTarget.focus()
-      : (window.scrollTo(0, 0), this.buttonTarget.click());
-  };
-  #s = (e) => {
+  handleBackspace(e) {
     e.preventDefault();
-  };
-  #r = (e) => {
+  }
+  handleKeyDown(e) {
     if (
       ("Enter" === e.key && (e.preventDefault(), this.buttonTarget.click()),
-      "Space" === e.code && 229 !== e.keyCode && !this.#n)
+      "Space" === e.code && 229 !== e.keyCode && !this.inputEnabled)
     ) {
       const t = 0.85 * window.innerHeight * (e.shiftKey ? -1 : 1),
         n = Math.ceil(document.documentElement.scrollTop + t);
       window.scrollTo({ left: 0, top: n, behavior: "smooth" }),
         e.preventDefault();
     }
-    if (/(ArrowUp|ArrowDown)/.test(e.code) && !this.#n) {
+    if (/(ArrowUp|ArrowDown)/.test(e.code) && !this.inputEnabled) {
       const t = "ArrowUp" === e.code ? -40 : 40,
         n = Math.ceil(document.documentElement.scrollTop + t);
       window.scrollTo({ left: 0, top: n, behavior: "smooth" }),
         e.preventDefault();
     }
-  };
-  #o = (e) => {
-    this.#n ||
-      (e.target.value.slice(0, -1) === this.#t &&
+  }
+  handleInput(e) {
+    this.inputEnabled ||
+      (e.target.value.slice(0, -1) === this.lastAnswer &&
         window.keyboardManager.handleHotKey(
           new CustomEvent("fakeKeyDownEvent"),
           e.target.value.slice(-1)
         ),
-      (this.inputTarget.value = this.#t));
-  };
+      (this.inputTarget.value = this.lastAnswer));
+  }
+  disableInput() {
+    (this.inputTarget.disabled = !0),
+      window.keyboardManager.deregisterHotKey({
+        key: "Enter",
+        callback: this.focusOrNext,
+      }),
+      window.keyboardManager.deregisterHotKey({
+        key: "Backspace",
+        callback: this.handleBackspace,
+      }),
+      this.inputTarget.removeEventListener("keydown", this.handleKeyDown),
+      this.inputTarget.removeEventListener("input", this.handleInput);
+  }
+  scrollIntoView() {
+    if (document.activeElement === this.inputTarget && this.inputEnabled) {
+      const e =
+          this.inputTarget.getBoundingClientRect().bottom +
+          document.documentElement.scrollTop,
+        t =
+          e <= visualViewport.height
+            ? 0
+            : Math.floor(e - visualViewport.height);
+      document.documentElement.scrollTop = t;
+    }
+  }
   submitAnswer() {
     if (!this.hasQuizQueueOutlet || !this.hasQuizUserSynonymsOutlet) return;
-    if (!this.#n)
+    if (!this.inputEnabled)
       return (
         this.quizQueueOutlet.nextItem(),
-        (this.#n = !0),
+        (this.inputEnabled = !0),
         this.inputContainerTarget.removeAttribute("correct"),
-        void this.inputTarget.focus()
+        this.inputTarget.focus(),
+        void this.scrollIntoView()
       );
-    this.#u();
-    let inputValue = this.inputTarget.value.trim();
+    this.clearException();
+    let e = this.inputTarget.value.trim();
     if (
       ("reading" === this.currentQuestionType &&
-        ((inputValue = normalizeReadingResponse(inputValue)),
-        (this.inputTarget.value = inputValue)),
-      !questionTypeAndResponseMatch(this.currentQuestionType, inputValue) ||
-        0 == inputValue.length)
+        (e = normalizeReadingResponse(e)),
+      (this.inputTarget.value = e),
+      !questionTypeAndResponseMatch(this.currentQuestionType, e) ||
+        0 == e.length)
     )
-      return void this.#h();
-    const synonyms = this.quizUserSynonymsOutlet.synonymsForSubjectId(
+      return void this.shakeForm();
+    const t = this.quizUserSynonymsOutlet.synonymsForSubjectId(
         this.currentSubject.id
       ),
-      n = this.#e.evaluate(
+      n = this.answerChecker.evaluate(
         this.currentQuestionType,
-        inputValue,
+        e,
         this.currentSubject,
-        synonyms
+        t
       );
     n.exception
-      ? (this.#h(), this.#c(n.exception))
-      : ((this.#n = !1),
-        (this.#t = inputValue),
+      ? (this.shakeForm(), this.showException(n.exception))
+      : ((this.inputEnabled = !1),
+        (this.lastAnswer = e),
         this.inputContainerTarget.setAttribute("correct", n.passed),
-        this.quizQueueOutlet.submitAnswer(inputValue, n));
+        this.quizQueueOutlet.submitAnswer(e, n));
   }
-  #onWillShowNextQuestion = (e) => {
+  updateQuestion(e) {
     (this.currentQuestionType = e.detail.questionType),
       (this.currentSubject = e.detail.subject),
       (this.categoryTarget.innerText = this.currentSubject.subject_category),
@@ -156,37 +189,38 @@ export default class extends Controller {
         (wanakana.bind(this.inputTarget),
         (this.inputTarget.dataset.wanakanaBound = !0),
         this.inputTarget.setAttribute("placeholder", "\u7b54\u3048"));
-  };
+  }
   appendKanaCharacter(e) {
-    this.#n && (this.inputTarget.value += e);
+    this.inputEnabled && (this.inputTarget.value += e);
   }
   deleteCharacter() {
-    this.#n && (this.inputTarget.value = this.inputTarget.value.slice(0, -1));
+    this.inputEnabled &&
+      (this.inputTarget.value = this.inputTarget.value.slice(0, -1));
   }
-  #h = () => {
+  shakeForm() {
     const e = () => {
       this.inputContainerTarget.removeEventListener("animationend", e),
         this.inputContainerTarget.classList.remove("effects--shake");
     };
     this.inputContainerTarget.addEventListener("animationend", e),
       this.inputContainerTarget.classList.add("effects--shake");
-  };
-  #c = (e) => {
+  }
+  showException(e) {
     "string" == typeof e &&
       ((this.exceptionTarget.innerText = e),
       (this.exceptionContainerTarget.hidden = !1));
-  };
-  #u = () => {
+  }
+  clearException() {
     (this.exceptionContainerTarget.hidden = !0),
       (this.exceptionTarget.innerText = "");
-  };
-  get #n() {
+  }
+  get inputEnabled() {
     return (
       this.inputTarget.hasAttribute("enabled") &&
       "true" === this.inputTarget.getAttribute("enabled")
     );
   }
-  set #n(e) {
+  set inputEnabled(e) {
     this.inputTarget.setAttribute("enabled", e);
   }
 }

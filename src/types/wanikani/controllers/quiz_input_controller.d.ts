@@ -1,5 +1,8 @@
+
 declare module "controllers/quiz_input_controller" {
-  import QuizUserSynonymsController from "controllers/quiz_user_synonyms_controller";
+ import AnswerChecker from "lib/answer_checker/answer_checker";
+ import WillShowNextQuestionEvent from "events/will_show_next_question";
+import QuizUserSynonymsController from "controllers/quiz_user_synonyms_controller";
   import QuizQueueController from "controllers/quiz_queue_controller";
   import QuizQueue from "controllers/quiz_queue/queue";
   import { Controller } from "@hotwired/stimulus";
@@ -43,6 +46,13 @@ declare module "controllers/quiz_input_controller" {
     get quizUserSynonymsOutletElement(): HTMLElement;
     get quizUserSynonymsOutletElements(): HTMLElement[];
     get hasQuizUserSynonymsOutlet(): boolean;
+
+    get inputEnabled(): boolean;
+    set inputEnabled(value: boolean);
+
+    answerChecker: AnswerChecker;
+    lastAnswer: string;
+
     /**
      * Initializes the controller and sets up some event listeners.
      */
@@ -65,9 +75,17 @@ declare module "controllers/quiz_input_controller" {
     /**
      * Sets up event listeners for the input field.
      */
-    inputTargetConnected(): void;
+    focusOrNext(): void;
+    handleBackspace(): void;
+    handleKeyDown(event: KeyboardEvent): void;
+    handleInput(event: Event): void;
+    disableInput(): void;
     submitAnswer(): void;
     appendKanaCharacter(char: string): void;
     deleteCharacter(): void;
+    updateQuestion(event: WillShowNextQuestionEvent): void;
+    shakeForm(): void;
+    showException(event: Event): void;
+    clearException(): void;
   }
 }
