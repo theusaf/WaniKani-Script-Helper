@@ -1,46 +1,45 @@
 class KeyboardManager {
-  #data1;
-  #data2;
-  #modalMode = !1;
   constructor() {
-    (this.#data1 = {}),
-      (this.#data2 = {}),
-      window.addEventListener("keydown", this.#onKeyDown);
+    (this.hotKeys = {}),
+      (this.modalKeys = {}),
+      (this.modalMode = !1),
+      (this.handleKeyPress = this.handleKeyPress.bind(this)),
+      window.addEventListener("keydown", this.handleKeyPress);
   }
-  setModalMode = () => {
-    (this.#modalMode = !0), (this.#data2 = {});
-  };
-  clearModalMode = () => {
-    (this.#modalMode = !1), (this.#data2 = {});
-  };
-  registerHotKey = ({ key, callback }) => {
-    const dataStorage = this.#modalMode ? this.#data2 : this.#data1;
-    (dataStorage[key] = dataStorage[key] || []),
-      dataStorage[key].push(callback);
-  };
-  deregisterHotKey = ({ key: e, callback: a }) => {
-    this.#removeCallback({ map: this.#data2, key: e, callback: a }),
-      this.#removeCallback({ map: this.#data1, key: e, callback: a });
-  };
-  handleHotKey = (event, key) => {
+  setModalMode() {
+    (this.modalMode = !0), (this.modalKeys = {});
+  }
+  clearModalMode() {
+    (this.modalMode = !1), (this.modalKeys = {});
+  }
+  registerHotKey({ key: e, callback: t }) {
+    const a = this.modalMode ? this.modalKeys : this.hotKeys;
+    (a[e] = a[e] || []), a[e].push(t);
+  }
+  deregisterHotKey({ key: e, callback: t }) {
+    this.removeHotKeyFromMap({ map: this.modalKeys, key: e, callback: t }),
+      this.removeHotKeyFromMap({ map: this.hotKeys, key: e, callback: t });
+  }
+  handleHotKey(e, t) {
     (
-      (Object.keys(this.#data2).length > 0 ? this.#data2 : this.#data1)[key] ||
-      []
-    ).forEach((callback) => {
-      callback(event);
+      (Object.keys(this.modalKeys).length > 0 ? this.modalKeys : this.hotKeys)[
+        t
+      ] || []
+    ).forEach((t) => {
+      t(e);
     });
-  };
-  #onKeyDown = (e) => {
+  }
+  handleKeyPress(e) {
     /^(input|textarea)$/i.test(e.target.tagName) ||
       e.metaKey ||
       e.altKey ||
       e.ctrlKey ||
       this.handleHotKey(e, e.key);
-  };
-  #removeCallback = ({ map: e, key: a, callback: t }) => {
-    const o = e[a] || [],
-      s = o.indexOf(t);
-    s > -1 && o.splice(s, 1), 0 === o.length && delete e[a];
-  };
+  }
+  removeHotKeyFromMap({ map: e, key: t, callback: a }) {
+    const s = e[t] || [],
+      o = s.indexOf(a);
+    o > -1 && s.splice(o, 1), 0 === s.length && delete e[t];
+  }
 }
 window.keyboardManager = new KeyboardManager();
