@@ -15,8 +15,15 @@ declare module "controllers/subject_slides_controller" {
     get audioPlayerOutletElement(): HTMLElement;
     get audioPlayerOutletElements(): HTMLElement[];
     get hasAudioPlayerOutlet(): boolean;
+
+    initialize(): void;
     connect(): void;
     disconnect(): void;
     switchSlide(event: Event): void;
+    beforeCache(): void;
+    hashChanged(event: HashChangeEvent): void;
+    showSlide(slideId: string, playAudio: boolean): void;
+    handleNext(): void;
+    handlePrev(): void;
   }
 }
