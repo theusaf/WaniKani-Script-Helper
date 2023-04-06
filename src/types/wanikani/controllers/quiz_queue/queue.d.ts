@@ -2,8 +2,8 @@ import SRSManager from "controllers/quiz_queue/srs_manager";
 import WrapUpManager from "controllers/quiz_queue/wrap_up_manager";
 
 declare module "controllers/quiz_queue/queue" {
- import CachedStats from "controllers/quiz_queue/cached_stats";
- import { QuestionAnswerResults, Subject } from "events/did_answer_question";
+  import CachedStats from "controllers/quiz_queue/cached_stats";
+  import { QuestionAnswerResults, Subject } from "events/did_answer_question";
   import QuizAPI from "controllers/quiz_queue/quiz_api";
 
   export type SRSMap = Map<number, number>;
@@ -31,12 +31,12 @@ declare module "controllers/quiz_queue/queue" {
     minBacklogQueueSize: 20;
     fetchItemsBatchSize: 100;
     maxActiveQueueSize: 10;
-    fetchingMoreItems: boolean
-    stats: CachedStats
+    fetchingMoreItems: boolean;
+    stats: CachedStats;
     activeQueue: Subject[];
     backlogQueue: Subject[];
-    wrapUpManager: WrapUpManager
-    srsManager: SRSManager
+    wrapUpManager: WrapUpManager;
+    srsManager: SRSManager;
     totalItems: number;
     questionOrder: "random" | "meaningFirst" | "readingFirst";
     completeSubjectsInOrder: boolean;
@@ -109,7 +109,7 @@ declare module "controllers/quiz_queue/queue" {
      *
      * @param passed
      */
-    shuffleFirstItem(passed: boolean): void
+    shuffleFirstItem(passed: boolean): void;
 
     fetchMoreItems(): void;
   }

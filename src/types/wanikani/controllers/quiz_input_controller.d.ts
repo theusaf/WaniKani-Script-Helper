@@ -1,8 +1,7 @@
-
 declare module "controllers/quiz_input_controller" {
- import AnswerChecker from "lib/answer_checker/answer_checker";
- import WillShowNextQuestionEvent from "events/will_show_next_question";
-import QuizUserSynonymsController from "controllers/quiz_user_synonyms_controller";
+  import AnswerChecker from "lib/answer_checker/answer_checker";
+  import WillShowNextQuestionEvent from "events/will_show_next_question";
+  import QuizUserSynonymsController from "controllers/quiz_user_synonyms_controller";
   import QuizQueueController from "controllers/quiz_queue_controller";
   import QuizQueue from "controllers/quiz_queue/queue";
   import { Controller } from "@hotwired/stimulus";

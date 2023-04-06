@@ -14,8 +14,7 @@ declare module "controllers/quiz_queue/cached_stats" {
    * A map that stores statistics in memory.
    */
   export default class CachedStats {
-
-    data: Map<number, any>
+    data: Map<number, any>;
 
     /**
      * Deletes a value from the map.

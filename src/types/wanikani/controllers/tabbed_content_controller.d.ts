@@ -17,7 +17,7 @@ declare module "controllers/tabbed_content_controller" {
     set previousTabHotKeyValue(value: string);
     get hasPreviousTabHotKeyValue(): boolean;
 
-    observer: IntersectionObserver
+    observer: IntersectionObserver;
 
     connect(): void;
     disconnect(): void;

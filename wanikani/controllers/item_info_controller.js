@@ -4,7 +4,9 @@ export default class extends Controller {
   static targets = ["toggle", "exception"];
   static values = { autoOpenAfterIncorrectCount: Number };
   initialize() {
-    this.urlTemplate = this.toggleTarget.getAttribute("href");
+    (this.urlTemplate = this.toggleTarget.getAttribute("href")),
+      (this.enable = this.enable.bind(this)),
+      (this.disable = this.disable.bind(this));
   }
   connect() {
     window.addEventListener("willShowNextQuestion", this.disable),
@@ -14,41 +16,37 @@ export default class extends Controller {
     window.removeEventListener("willShowNextQuestion", this.disable),
       window.removeEventListener("didAnswerQuestion", this.enable);
   }
-  enable = (e) => {
-    const {
-      subjectWithStats: stats,
-      questionType: questionType,
-      results: results,
-    } = e.detail;
+  enable(e) {
+    const { subjectWithStats: t, questionType: s, results: i } = e.detail;
     if (
-      (this.showException(questionType, results),
+      (this.showException(s, i),
       this.toggleTarget.classList.remove(this.toggleDisabledClass),
       this.toggleTarget.setAttribute(
         "href",
-        this.urlTemplate.replace(":id", stats.subject.id)
+        this.urlTemplate.replace(":id", t.subject.id)
       ),
       this.autoOpenAfterIncorrectCountValue > 0)
     ) {
       const { meaning: t, reading: s } = e.detail.subjectWithStats.stats;
-      !results.passed &&
+      !i.passed &&
         (t.incorrect >= this.autoOpenAfterIncorrectCountValue ||
           s.incorrect >= this.autoOpenAfterIncorrectCountValue) &&
         this.toggleTarget.click();
     }
-  };
-  disable = () => {
+  }
+  disable() {
     this.hideException(),
       this.toggleTarget.classList.add(this.toggleDisabledClass);
-  };
-  showException(type, results) {
+  }
+  showException(e, t) {
     let s = "";
-    results.passed
-      ? results.passed && results.accurate && results.multipleAnswers
-        ? (s = `Did you know this item has multiple possible ${type}s?`)
-        : results.passed &&
-          !results.accurate &&
-          (s = `Your answer was a bit off. Check the ${type} to make sure you are correct.`)
-      : (s = `Need help? View the correct ${type} and mnemonic.`),
+    t.passed
+      ? t.passed && t.accurate && t.multipleAnswers
+        ? (s = `Did you know this item has multiple possible ${e}s?`)
+        : t.passed &&
+          !t.accurate &&
+          (s = `Your answer was a bit off. Check the ${e} to make sure you are correct.`)
+      : (s = `Need help? View the correct ${e} and mnemonic.`),
       (this.exceptionTarget.textContent = s),
       this.exceptionTarget.classList.toggle(
         this.exceptionHiddenClass,

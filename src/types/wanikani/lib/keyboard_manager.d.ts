@@ -19,7 +19,7 @@ declare module "lib/keyboard_manager" {
 
     hotKeys: Record<string, KeyboardManagerCallback[]>;
     modalKeys: Record<string, KeyboardManagerCallback[]>;
-    modalMode: boolean
+    modalMode: boolean;
 
     /**
      * Sets the modal mode to true.
@@ -55,6 +55,6 @@ declare module "lib/keyboard_manager" {
 
     handleKeyPress(event: KeyboardEvent): void;
 
-    removeHotKeyFromMap(data: RemoveHotKeyOptions): void
+    removeHotKeyFromMap(options: RemoveHotKeyOptions): void;
   }
 }

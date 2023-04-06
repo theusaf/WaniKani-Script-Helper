@@ -1,6 +1,5 @@
-
 declare module "controllers/quiz_statistics_controller" {
-import DidAnswerQuestionEvent from "events/did_answer_question";
+  import DidAnswerQuestionEvent from "events/did_answer_question";
   import { Controller } from "@hotwired/stimulus";
   export default class extends Controller {
     static targets: string[];

@@ -1,6 +1,5 @@
-
 declare module "controllers/quiz_header_controller" {
-import DidChangeSRSEvent from "events/did_change_srs_event";
+  import DidChangeSRSEvent from "events/did_change_srs_event";
   import { Controller } from "@hotwired/stimulus";
   export default class extends Controller {
     static targets: string[];

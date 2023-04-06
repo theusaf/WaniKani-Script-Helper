@@ -25,6 +25,6 @@ declare module "controllers/subject_info_controller" {
      * Expands all information.
      */
     toggleExpandAll(): void;
-    beforeFrameRender(event: Event): void
+    beforeFrameRender(event: Event): void;
   }
 }

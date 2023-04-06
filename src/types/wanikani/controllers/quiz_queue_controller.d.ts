@@ -1,7 +1,6 @@
-
 declare module "controllers/quiz_queue_controller" {
- import QuizQueue from "controllers/quiz_queue/queue";
- import { QuestionAnswerResults } from "events/did_answer_question";
+  import QuizQueue from "controllers/quiz_queue/queue";
+  import { QuestionAnswerResults } from "events/did_answer_question";
   import { ValueDefinitionMap } from "@hotwired/stimulus/dist/types/core/value_properties";
   import { Controller } from "@hotwired/stimulus";
   export default class extends Controller {
@@ -35,7 +34,7 @@ declare module "controllers/quiz_queue_controller" {
     set questionOrderValue(value: string);
     get hasQuestionOrderValue(): boolean;
 
-    quizQueue: QuizQueue
+    quizQueue: QuizQueue;
 
     initialize(): void;
     /**

@@ -1,6 +1,5 @@
-
 declare module "controllers/quiz_user_synonyms_controller" {
-import DidUpdateUserSynonymsEvent from "events/did_update_user_synonyms";
+  import DidUpdateUserSynonymsEvent from "events/did_update_user_synonyms";
   import { Controller } from "@hotwired/stimulus";
   export default class extends Controller {
     static targets: string[];

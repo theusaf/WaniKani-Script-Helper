@@ -1,7 +1,8 @@
 const setWindowHeight = () => {
   document.documentElement.style.setProperty(
     "--vh",
-    0.01 * window.innerHeight + "px"
+    0.01 * visualViewport.height + "px"
   );
 };
-setWindowHeight(), window.addEventListener("resize", setWindowHeight);
+setWindowHeight(),
+  window.visualViewport.addEventListener("resize", setWindowHeight);
