@@ -1,34 +1,38 @@
 export default class WrapUpManager {
-  #observers = [];
-  #currentCount = 0;
-  #isWrappingUp = !1;
   constructor(r) {
-    (this.#currentCount = r),
-      window.addEventListener("registerWrapUpObserver", this.#onRegisterWrapUp);
-  }
-  get wrappingUp() {
-    return this.#isWrappingUp;
+    (this.wrapUpObservers = []),
+      (this.queueSize = 0),
+      (this.wrappingUp = !1),
+      (this.queueSize = r),
+      (this.registerWrapUpObserver = this.registerWrapUpObserver.bind(this)),
+      (this.deregisterWrapUpObserver =
+        this.deregisterWrapUpObserver.bind(this)),
+      (this.toggleWrapUp = this.toggleWrapUp.bind(this)),
+      window.addEventListener(
+        "registerWrapUpObserver",
+        this.registerWrapUpObserver
+      );
   }
   updateQueueSize(r) {
-    (this.#currentCount = r),
-      this.#observers.forEach((e) => e.onUpdateCount({ currentCount: r }));
+    (this.queueSize = r),
+      this.wrapUpObservers.forEach((e) => e.onUpdateCount({ currentCount: r }));
   }
-  #onRegisterWrapUp = (r) => {
-    const { observer: observer } = r.detail;
-    this.#observers.push(observer),
-      observer.onRegistration(this.#wrapUp, this.#removeObserver);
-  };
-  #removeObserver = (r) => {
-    const e = this.#observers.findIndex((e) => e === r);
-    -1 !== e && this.#observers.splice(e, 1);
-  };
-  #wrapUp = () => {
-    (this.#isWrappingUp = !this.#isWrappingUp),
-      this.#observers.forEach((obs) =>
-        obs.onWrapUp({
-          isWrappingUp: this.#isWrappingUp,
-          currentCount: this.#currentCount,
+  registerWrapUpObserver(r) {
+    const { observer: e } = r.detail;
+    this.wrapUpObservers.push(e),
+      e.onRegistration(this.toggleWrapUp, this.deregisterWrapUpObserver);
+  }
+  deregisterWrapUpObserver(r) {
+    const e = this.wrapUpObservers.findIndex((e) => e === r);
+    -1 !== e && this.wrapUpObservers.splice(e, 1);
+  }
+  toggleWrapUp() {
+    (this.wrappingUp = !this.wrappingUp),
+      this.wrapUpObservers.forEach((r) =>
+        r.onWrapUp({
+          isWrappingUp: this.wrappingUp,
+          currentCount: this.queueSize,
         })
       );
-  };
+  }
 }
