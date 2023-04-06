@@ -1,7 +1,7 @@
-import SRSManager from "controllers/quiz_queue/srs_manager";
-import WrapUpManager from "controllers/quiz_queue/wrap_up_manager";
 
 declare module "controllers/quiz_queue/queue" {
+  import SRSManager from "controllers/quiz_queue/srs_manager";
+  import WrapUpManager from "controllers/quiz_queue/wrap_up_manager";
   import CachedStats from "controllers/quiz_queue/cached_stats";
   import { QuestionAnswerResults, Subject } from "events/did_answer_question";
   import QuizAPI from "controllers/quiz_queue/quiz_api";

@@ -9,6 +9,8 @@ declare module "controllers/quiz_queue/srs_manager" {
 
     constructor(param: SRSMap);
 
+    srsMap: SRSMap;
+
     /**
      * Updates SRS data and displays text.
      *
