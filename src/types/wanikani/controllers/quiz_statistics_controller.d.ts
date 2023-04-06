@@ -1,4 +1,6 @@
+
 declare module "controllers/quiz_statistics_controller" {
+import DidAnswerQuestionEvent from "events/did_answer_question";
   import { Controller } from "@hotwired/stimulus";
   export default class extends Controller {
     static targets: string[];
@@ -11,7 +13,15 @@ declare module "controllers/quiz_statistics_controller" {
     get remainingCountTarget(): HTMLElement;
     get remainingCountTargets(): HTMLElement[];
     get hasRemainingCountTarget(): boolean;
+
+    completedCount: number;
+    remainingCount: number;
+    incorrectCount: number;
+    answeredCount: number;
+
     connect(): void;
     disconnect(): void;
+    subjectCompleted(): void;
+    didAnswerQuestion(event: DidAnswerQuestionEvent): void;
   }
 }
