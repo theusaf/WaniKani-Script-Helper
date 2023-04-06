@@ -15,7 +15,6 @@ export default class extends Controller {
     completeSubjectsInOrder: Boolean,
     questionOrder: String,
   };
-  #e;
   initialize() {
     const e = new QuizAPI({
       completionUrl: this.completionUrlValue,
@@ -27,36 +26,37 @@ export default class extends Controller {
       s = [];
     if (this.hasSubjectIdsWithSRSTarget) {
       const e = JSON.parse(this.subjectIdsWithSRSTarget.innerText),
-        r = t.map((e) => e.id);
+        n = t.map((e) => e.id);
       (i = new Map(e)),
-        (s = Array.from(i.keys()).filter((e) => !r.includes(e)));
+        (s = Array.from(i.keys()).filter((e) => !n.includes(e)));
     }
     if (this.hasSubjectIdsTarget) {
       const e = JSON.parse(this.subjectIdsTarget.innerText),
         i = t.map((e) => e.id);
       s = e.filter((e) => !i.includes(e));
     }
-    this.#e = new QuizQueue({
-      queue: t,
-      api: e,
-      srsMap: i,
-      remainingIds: s,
-      completeSubjectsInOrder: this.completeSubjectsInOrderValue,
-      questionOrder: this.questionOrderValue,
-      onDone: this.#t,
-    });
+    (this.onDone = this.onDone.bind(this)),
+      (this.quizQueue = new QuizQueue({
+        queue: t,
+        api: e,
+        srsMap: i,
+        remainingIds: s,
+        completeSubjectsInOrder: this.completeSubjectsInOrderValue,
+        questionOrder: this.questionOrderValue,
+        onDone: this.onDone,
+      }));
   }
-  nextItem = (e) => {
-    this.#e.nextItem(e);
-  };
-  submitAnswer = (e, t) => {
-    this.#e.submitAnswer(e, t);
-  };
-  #t = () => {
+  nextItem(e) {
+    this.quizQueue.nextItem(e);
+  }
+  submitAnswer(e, t) {
+    this.quizQueue.submitAnswer(e, t);
+  }
+  onDone() {
     if (this.hasDoneDialogTemplateTarget) {
       const e =
         this.doneDialogTemplateTarget.content.firstElementChild.cloneNode(!0);
       this.element.appendChild(e);
     } else this.hasDoneUrlValue && Turbo.visit(this.doneUrlValue);
-  };
+  }
 }
