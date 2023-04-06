@@ -1,10 +1,16 @@
 import { Controller } from "@hotwired/stimulus";
 export default class extends Controller {
   static targets = ["item"];
+  initialize() {
+    this.handleSkip = this.handleSkip.bind(this);
+  }
   connect() {
     const e = this.element.dataset.skipHotKey;
     e &&
-      (window.keyboardManager.registerHotKey({ key: e, callback: this.#e }),
+      (window.keyboardManager.registerHotKey({
+        key: e,
+        callback: this.handleSkip,
+      }),
       (this.element.dataset.hotkeyRegistered = !0)),
       this.itemTargets.forEach((e) => {
         const t = e.firstElementChild;
@@ -23,7 +29,10 @@ export default class extends Controller {
   disconnect() {
     const e = this.element.dataset.skipHotKey;
     e &&
-      (window.keyboardManager.deregisterHotKey({ key: e, callback: this.#e }),
+      (window.keyboardManager.deregisterHotKey({
+        key: e,
+        callback: this.handleSkip,
+      }),
       (this.element.dataset.hotkeyRegistered = !1)),
       this.itemTargets.forEach((e) => {
         const t = e.firstElementChild;
@@ -37,11 +46,11 @@ export default class extends Controller {
           (t.dataset.hotkeyRegistered = !1));
       });
   }
-  #e = () => {
+  handleSkip() {
     const e = new RegExp(window.location.pathname),
       t = this.itemTargets.findIndex((t) =>
         e.test(t.firstElementChild.getAttribute("href"))
       );
     this.itemTargets[t + 1].firstElementChild.click();
-  };
+  }
 }

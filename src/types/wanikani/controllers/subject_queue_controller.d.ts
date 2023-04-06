@@ -5,7 +5,10 @@ declare module "controllers/subject_queue_controller" {
     get itemTarget(): HTMLElement;
     get itemTargets(): HTMLElement[];
     get hasItemTarget(): boolean;
+
+    initialize(): void;
     connect(): void;
     disconnect(): void;
+    handleSkip(): void;
   }
 }
