@@ -1,4 +1,5 @@
 declare module "controllers/quiz_queue/quiz_api" {
+  import CachedQueue from "controllers/quiz_queue/cached_queue";
   import { Subject } from "events/did_answer_question";
   import { Stats } from "controllers/quiz_queue/cached_stats";
 
@@ -9,6 +10,12 @@ declare module "controllers/quiz_queue/quiz_api" {
 
   export default class QuizAPI {
     constructor(params: QuizAPIContructorParams);
+
+    itemsUrl: string;
+    completionUrl: string;
+    queue: CachedQueue;
+    retryCount: number;
+    syncing: boolean;
 
     /**
      * Submits a question result.
@@ -42,5 +49,15 @@ declare module "controllers/quiz_queue/quiz_api" {
      * @param params
      */
     fetchItems(params: { ids: number[] }): Promise<Subject[]>;
+
+    retrySend(): void;
+
+    sendQueue(): Promise<void>;
+
+    setRetriesExhausted(): void;
+
+    hadRetriesExhausted(): boolean;
+
+    clearRetriesExhausted(): void;
   }
 }
