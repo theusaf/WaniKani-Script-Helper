@@ -6,58 +6,47 @@ import CachedStats from "controllers/quiz_queue/cached_stats";
 import WrapUpManager from "controllers/quiz_queue/wrap_up_manager";
 import SRSManager from "controllers/quiz_queue/srs_manager";
 export default class QuizQueue {
-  #api;
-  #onDone;
-  #items;
-  #currentSlice;
-  #totalRemaining;
-  #wrapUpManager;
-  #srsManager;
-  #remainingIds;
-  #statsMap = new CachedStats();
-  #MAX_ITEM_ZUTSU = 10;
-  #UNLOADED_THRESHHOLD = 20;
-  #ITEMS_TO_LOAD = 100;
-  #loading = !1;
-  #completeSubjectsInOrder = !1;
-  #questionOrder = "random";
   constructor({
-    queue,
-    api,
-    remainingIds,
-    srsMap,
-    completeSubjectsInOrder,
-    questionOrder,
-    onDone,
+    queue: e,
+    api: t,
+    remainingIds: i,
+    srsMap: s,
+    completeSubjectsInOrder: n,
+    questionOrder: u,
+    onDone: r,
   }) {
-    (this.#items = queue.slice(0, this.#MAX_ITEM_ZUTSU)),
-      (this.#currentSlice = queue.slice(this.#MAX_ITEM_ZUTSU)),
-      (this.#api = api),
-      (this.#wrapUpManager = new WrapUpManager(this.#items.length)),
-      (this.#srsManager = new SRSManager(srsMap)),
-      (this.#remainingIds = remainingIds),
-      (this.#onDone = onDone),
-      (this.#totalRemaining = this.#totalItemsRemaining),
-      this.#updateQuizProgress(0),
-      (this.#completeSubjectsInOrder = completeSubjectsInOrder),
-      (this.#questionOrder = questionOrder);
+    (this.maxActiveQueueSize = 10),
+      (this.minBacklogQueueSize = 20),
+      (this.fetchItemsBatchSize = 100),
+      (this.fetchingMoreItems = !1),
+      (this.stats = new CachedStats()),
+      (this.activeQueue = e.slice(0, this.maxActiveQueueSize)),
+      (this.backlogQueue = e.slice(this.maxActiveQueueSize)),
+      (this.api = t),
+      (this.wrapUpManager = new WrapUpManager(this.activeQueue.length)),
+      (this.srsManager = new SRSManager(s)),
+      (this.remainingIds = i),
+      (this.onDone = r),
+      (this.totalItems = this.remainingQueueLength),
+      this.updateQuizProgress(0),
+      (this.completeSubjectsInOrder = n),
+      (this.questionOrder = u);
   }
-  nextItem(questionType) {
+  nextItem(e) {
     if (
-      0 === this.#totalItemsRemaining ||
-      (this.#wrapUpManager.wrappingUp && 0 === this.#items.length)
+      0 === this.remainingQueueLength ||
+      (this.wrapUpManager.wrappingUp && 0 === this.activeQueue.length)
     )
-      return this.#onDone(), void this.#updateQuizProgress(0);
-    this.currentItem = this.#items[0];
-    const stat = this.#statsMap.get(this.currentItem);
-    stat.reading.complete ||
-    (("meaning" === questionType || "meaningFirst" === this.#questionOrder) &&
-      !stat.meaning.complete)
+      return this.onDone(), void this.updateQuizProgress(0);
+    this.currentItem = this.activeQueue[0];
+    const t = this.stats.get(this.currentItem);
+    t.reading.complete ||
+    (("meaning" === e || "meaningFirst" === this.questionOrder) &&
+      !t.meaning.complete)
       ? (this.questionType = "meaning")
-      : stat.meaning.complete ||
-        (("reading" === questionType ||
-          "readingFirst" === this.#questionOrder) &&
-          !stat.reading.complete)
+      : t.meaning.complete ||
+        (("reading" === e || "readingFirst" === this.questionOrder) &&
+          !t.reading.complete)
       ? (this.questionType = "reading")
       : (this.questionType = ["meaning", "reading"][
           Math.floor(2 * Math.random())
@@ -69,101 +58,93 @@ export default class QuizQueue {
         })
       );
   }
-  submitAnswer(answer, results) {
-    const outcomeStat = this.#updateStatsFromOutcome(results.passed),
-      subjectWithStats = JSON.parse(
-        JSON.stringify({ subject: this.currentItem, stats: outcomeStat })
-      );
+  submitAnswer(e, t) {
+    const i = this.updateCurrentItemStats(t.passed),
+      s = JSON.parse(JSON.stringify({ subject: this.currentItem, stats: i }));
     window.dispatchEvent(
       new DidAnswerQuestionEvent({
-        subjectWithStats: subjectWithStats,
+        subjectWithStats: s,
         questionType: this.questionType,
-        answer: answer,
-        results: results,
+        answer: e,
+        results: t,
       })
     ),
-      outcomeStat.reading.complete && outcomeStat.meaning.complete
-        ? (this.#api.itemComplete({
-            item: this.currentItem,
-            stats: outcomeStat,
-          }),
+      i.reading.complete && i.meaning.complete
+        ? (this.api.itemComplete({ item: this.currentItem, stats: i }),
           window.dispatchEvent(
-            new DidCompleteSubjectEvent({ subjectWithStats: subjectWithStats })
+            new DidCompleteSubjectEvent({ subjectWithStats: s })
           ),
-          this.#srsManager.updateSRS({
-            subject: this.currentItem,
-            stats: outcomeStat,
-          }),
-          this.#removeCurrentItem(),
-          this.#updateQuizProgress(),
-          this.#statsMap.delete(this.currentItem))
-        : this.#completeSubjectsInOrder || this.#randomizeOrder(results.passed);
+          this.srsManager.updateSRS({ subject: this.currentItem, stats: i }),
+          this.updateQueues(),
+          this.updateQuizProgress(),
+          this.stats.delete(this.currentItem))
+        : this.completeSubjectsInOrder || this.shuffleFirstItem(t.passed);
   }
-  #updateStatsFromOutcome = (passed) => {
-    const stat = this.#statsMap.get(this.currentItem);
+  updateCurrentItemStats(e) {
+    const t = this.stats.get(this.currentItem);
     return (
-      (stat[this.questionType].complete = passed),
-      passed || (stat[this.questionType].incorrect += 1),
-      this.#statsMap.set(this.currentItem, stat),
-      stat
+      (t[this.questionType].complete = e),
+      e || (t[this.questionType].incorrect += 1),
+      this.stats.set(this.currentItem, t),
+      t
     );
-  };
-  #updateQuizProgress = (e) => {
+  }
+  updateQuizProgress(e) {
     "number" != typeof e &&
       (e = Math.round(
-        ((this.#totalRemaining - this.#totalItemsRemaining) /
-          this.#totalRemaining) *
-          100
+        ((this.totalItems - this.remainingQueueLength) / this.totalItems) * 100
       )),
       window.dispatchEvent(new UpdateQuizProgress({ percentComplete: e }));
-  };
-  #removeCurrentItem = () => {
-    if (this.#wrapUpManager.wrappingUp) this.#items = this.#items.slice(1);
+  }
+  updateQueues() {
+    if (this.wrapUpManager.wrappingUp)
+      this.activeQueue = this.activeQueue.slice(1);
     else {
-      const i = this.#MAX_ITEM_ZUTSU - this.#items.length + 1;
-      (this.#items = this.#items
+      const e = this.maxActiveQueueSize - this.activeQueue.length + 1;
+      (this.activeQueue = this.activeQueue
         .slice(1)
-        .concat(this.#currentSlice.slice(0, i))),
-        (this.#currentSlice = this.#currentSlice.slice(i)),
-        this.#loadItems();
+        .concat(this.backlogQueue.slice(0, e))),
+        (this.backlogQueue = this.backlogQueue.slice(e)),
+        this.fetchMoreItems();
     }
-    this.#wrapUpManager.updateQueueSize(this.#items.length);
-  };
-  get #totalItemsRemaining() {
+    this.wrapUpManager.updateQueueSize(this.activeQueue.length);
+  }
+  get remainingQueueLength() {
     return (
-      this.#items.length + this.#currentSlice.length + this.#remainingIds.length
+      this.activeQueue.length +
+      this.backlogQueue.length +
+      this.remainingIds.length
     );
   }
-  #randomizeOrder = (passed) => {
-    const firstItem = this.#items[0],
-      items = this.#items.slice(1),
-      getRandomInt = (a, b) => Math.floor(Math.random() * (b - a + 1) + a),
-      randomIndex = getRandomInt(
-        passed ? 0 : Math.ceil(items.length / 2),
-        items.length
-      );
-    items.splice(randomIndex, 0, firstItem), (this.#items = items);
-  };
-  #loadItems = () => {
+  shuffleFirstItem(e) {
+    const t = this.activeQueue[0],
+      i = this.activeQueue.slice(1),
+      s = (e, t) => Math.floor(Math.random() * (t - e + 1) + e),
+      n = s(e ? 0 : Math.ceil(i.length / 2), i.length);
+    i.splice(n, 0, t), (this.activeQueue = i);
+  }
+  fetchMoreItems() {
     if (
-      0 === this.#remainingIds.length ||
-      this.#currentSlice.length > this.#UNLOADED_THRESHHOLD ||
-      this.#loading
+      0 === this.remainingIds.length ||
+      this.backlogQueue.length > this.minBacklogQueueSize ||
+      this.fetchingMoreItems
     )
       return;
-    this.#loading = !0;
-    const e = this.#remainingIds.slice(0, this.#ITEMS_TO_LOAD);
-    this.#api
+    this.fetchingMoreItems = !0;
+    const e = this.remainingIds.slice(0, this.fetchItemsBatchSize);
+    this.api
       .fetchItems({ ids: e })
       .then((e) => {
-        (this.#currentSlice = this.#currentSlice.concat(e)),
-          (this.#remainingIds = this.#remainingIds.slice(this.#ITEMS_TO_LOAD));
+        (this.backlogQueue = this.backlogQueue.concat(e)),
+          (this.remainingIds = this.remainingIds.slice(
+            this.fetchItemsBatchSize
+          ));
       })
       .catch((e) => {
         console.error(e);
       })
       .finally(() => {
-        this.#loading = !1;
+        this.fetchingMoreItems = !1;
       });
-  };
+  }
 }

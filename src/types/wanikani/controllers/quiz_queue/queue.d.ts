@@ -1,5 +1,9 @@
+import SRSManager from "controllers/quiz_queue/srs_manager";
+import WrapUpManager from "controllers/quiz_queue/wrap_up_manager";
+
 declare module "controllers/quiz_queue/queue" {
-  import { QuestionAnswerResults, Subject } from "events/did_answer_question";
+ import CachedStats from "controllers/quiz_queue/cached_stats";
+ import { QuestionAnswerResults, Subject } from "events/did_answer_question";
   import QuizAPI from "controllers/quiz_queue/quiz_api";
 
   export type SRSMap = Map<number, number>;
@@ -24,8 +28,22 @@ declare module "controllers/quiz_queue/queue" {
   }
 
   export default class QuizQueue {
+    minBacklogQueueSize: 20;
+    fetchItemsBatchSize: 100;
+    maxActiveQueueSize: 10;
+    fetchingMoreItems: boolean
+    stats: CachedStats
+    activeQueue: Subject[];
+    backlogQueue: Subject[];
+    wrapUpManager: WrapUpManager
+    srsManager: SRSManager
+    totalItems: number;
+    questionOrder: "random" | "meaningFirst" | "readingFirst";
+    completeSubjectsInOrder: boolean;
+    api: QuizAPI;
     questionType: "meaning" | "reading";
     currentItem: Subject;
+    onDone: () => void;
 
     constructor(params: QueueConstructorParams);
 
@@ -66,5 +84,33 @@ declare module "controllers/quiz_queue/queue" {
      * @param results
      */
     submitAnswer(answer: string, results: QuestionAnswerResults): void;
+
+    /**
+     * Updatese thh current item's stats.
+     *
+     * @param passed
+     */
+    updateCurrentItemStats(passed: boolean): void;
+
+    /**
+     * Calculates the progress of the quiz.
+     *
+     * @param percent
+     */
+    updateQuizProgress(percent?: number): void;
+
+    /**
+     * Loads new items and updates the data structures.
+     */
+    updateQueues(): void;
+
+    /**
+     * Repositions the current item somewhere in the queue.
+     *
+     * @param passed
+     */
+    shuffleFirstItem(passed: boolean): void
+
+    fetchMoreItems(): void;
   }
 }
