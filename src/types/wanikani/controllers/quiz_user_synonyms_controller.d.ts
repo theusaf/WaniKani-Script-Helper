@@ -1,10 +1,14 @@
+
 declare module "controllers/quiz_user_synonyms_controller" {
+import DidUpdateUserSynonymsEvent from "events/did_update_user_synonyms";
   import { Controller } from "@hotwired/stimulus";
   export default class extends Controller {
     static targets: string[];
     get synonymsTarget(): HTMLElement;
     get synonymsTargets(): HTMLElement[];
     get hasSynonymsTarget(): boolean;
+
+    synonyms: Record<number, string[]>;
 
     initialize(): void;
     connect(): void;
@@ -15,5 +19,6 @@ declare module "controllers/quiz_user_synonyms_controller" {
      * @param subjectId
      */
     synonymsForSubjectId(subjectId: number): string[];
+    updateSynonyms(event: DidUpdateUserSynonymsEvent): void;
   }
 }

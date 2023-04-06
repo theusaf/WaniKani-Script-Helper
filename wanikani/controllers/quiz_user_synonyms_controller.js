@@ -1,21 +1,21 @@
 import { Controller } from "@hotwired/stimulus";
 export default class extends Controller {
   static targets = ["synonyms"];
-  #subjectSynonyms;
   initialize() {
-    this.#subjectSynonyms = JSON.parse(this.synonymsTarget.innerText);
+    (this.updateSynonyms = this.updateSynonyms.bind(this)),
+      (this.synonyms = JSON.parse(this.synonymsTarget.innerText));
   }
   connect() {
-    window.addEventListener("didUpdateUserSynonyms", this.#n);
+    window.addEventListener("didUpdateUserSynonyms", this.updateSynonyms);
   }
   disconnect() {
-    window.removeEventListener("didUpdateUserSynonyms", this.#n);
+    window.removeEventListener("didUpdateUserSynonyms", this.updateSynonyms);
   }
-  #n = (t) => {
-    const { subjectId: n, synonyms: e } = t.detail;
-    this.#subjectSynonyms[n] = e;
-  };
-  synonymsForSubjectId(t) {
-    return this.#subjectSynonyms[t] || [];
+  updateSynonyms(n) {
+    const { subjectId: s, synonyms: t } = n.detail;
+    this.synonyms[s] = t;
+  }
+  synonymsForSubjectId(n) {
+    return this.synonyms[n] || [];
   }
 }
