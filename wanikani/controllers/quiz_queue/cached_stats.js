@@ -4,12 +4,19 @@ const itemsWithMeaningsOnly = ["Radical", "KanaVocabulary"],
     reading: { incorrect: 0, complete: itemsWithMeaningsOnly.includes(t.type) },
   });
 export default class CachedStats {
-  #map;
   constructor() {
-    this.#map = new Map();
+    this.data = new Map();
   }
-  delete = (t) => this.#map.delete(t.id);
-  get = (t) => this.#map.get(t.id) || newStat(t);
-  set = (t, a) => this.#map.set(t.id, a);
-  toJSON = () => Array.from(this.#map);
+  delete(t) {
+    this.data.delete(t.id);
+  }
+  get(t) {
+    return this.data.get(t.id) || newStat(t);
+  }
+  set(t, e) {
+    this.data.set(t.id, e);
+  }
+  toJSON() {
+    return Array.from(this.data);
+  }
 }
