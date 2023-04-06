@@ -1,17 +1,17 @@
 import { Controller } from "@hotwired/stimulus";
 export default class extends Controller {
   static outlets = ["toggle"];
-  toggleOutletConnected(e) {
-    e.hasContextValue &&
-      e.contextValue.auto_expand_question_types &&
-      e.contextValue.auto_expand_question_types.includes(
-        this.currentQuestionType
-      ) &&
-      e.expand();
+  initialize() {
+    (this.didAnswerQuestion = this.didAnswerQuestion.bind(this)),
+      (this.beforeFrameRender = this.beforeFrameRender.bind(this)),
+      (this.toggleExpandAll = this.toggleExpandAll.bind(this));
   }
   connect() {
     window.addEventListener("didAnswerQuestion", this.didAnswerQuestion),
-      this.element.addEventListener("turbo:before-frame-render", this.#e),
+      this.element.addEventListener(
+        "turbo:before-frame-render",
+        this.beforeFrameRender
+      ),
       (this.expanded = !1);
     const e = this.element.dataset.hotkey;
     e &&
@@ -22,7 +22,10 @@ export default class extends Controller {
   }
   disconnect() {
     window.removeEventListener("didAnswerQuestion", this.didAnswerQuestion),
-      this.element.removeEventListener("turbo:before-frame-render", this.#e);
+      this.element.removeEventListener(
+        "turbo:before-frame-render",
+        this.beforeFrameRender
+      );
     const e = this.element.dataset.hotkey;
     e &&
       window.keyboardManager.deregisterHotKey({
@@ -30,22 +33,30 @@ export default class extends Controller {
         callback: this.toggleExpandAll,
       });
   }
-  didAnswerQuestion = (e) => {
+  toggleOutletConnected(e) {
+    e.hasContextValue &&
+      e.contextValue.auto_expand_question_types &&
+      e.contextValue.auto_expand_question_types.includes(
+        this.currentQuestionType
+      ) &&
+      e.expand();
+  }
+  didAnswerQuestion(e) {
     (this.currentQuestionType = e.detail.questionType), (this.expanded = !1);
-  };
-  toggleExpandAll = () => {
+  }
+  toggleExpandAll() {
     this.hasToggleOutlet &&
       (this.toggleOutlets.forEach((e) =>
         this.expanded ? e.collapse() : e.expand()
       ),
       (this.expanded = !this.expanded));
-  };
-  #e = (e) => {
+  }
+  beforeFrameRender(e) {
     e.target === this.element &&
       e.detail.newFrame
         .querySelectorAll('a[data-turbo-frame="_blank"]')
         .forEach((e) => {
           e.setAttribute("target", "_blank");
         });
-  };
+  }
 }

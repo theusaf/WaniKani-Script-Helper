@@ -11,6 +11,7 @@ declare module "controllers/subject_info_controller" {
     get hasToggleOutlet(): boolean;
     currentQuestionType: string;
     expanded: boolean;
+    initialize(): void;
     toggleOutletConnected(outlet: ToggleController): void;
     connect(): void;
     disconnect(): void;
@@ -24,5 +25,6 @@ declare module "controllers/subject_info_controller" {
      * Expands all information.
      */
     toggleExpandAll(): void;
+    beforeFrameRender(event: Event): void
   }
 }
