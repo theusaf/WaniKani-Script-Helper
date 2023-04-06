@@ -6,6 +6,8 @@ declare module "controllers/subject_count_statistics_controller" {
     get countTarget(): HTMLElement;
     get countTargets(): HTMLElement[];
     get hasCountTarget(): boolean;
+
+    initialize(): void;
     connect(): void;
     disconnect(): void;
     /**
