@@ -12,6 +12,7 @@ import {
   TurboBeforeVisitEvent,
   TurboLoadEvent,
 } from "@Hotwired/turbo";
+import { Application } from "@hotwired/stimulus";
 
 interface WaniKaniEvents {
   connectionTimeout: ConnectionTimeout;
@@ -273,5 +274,6 @@ declare global {
     keyboardManager: KeyboardManager;
     FrontChat(command: string): void;
     wkhf: WKHF;
+    Stimulus: Application;
   }
 }
