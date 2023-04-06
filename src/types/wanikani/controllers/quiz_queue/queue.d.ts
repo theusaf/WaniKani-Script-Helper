@@ -1,4 +1,3 @@
-
 declare module "controllers/quiz_queue/queue" {
   import SRSManager from "controllers/quiz_queue/srs_manager";
   import WrapUpManager from "controllers/quiz_queue/wrap_up_manager";

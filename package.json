@@ -1,17 +1,18 @@
 {
   "name": "wkhf",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "A userscript helper for WaniKani",
-  "main": "dist/index.user.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dist": "tsc"
   },
   "author": "theusaf",
   "license": "MIT",
-  "devDependencies": {
+  "dependencies": {
     "@hotwired/stimulus": "^3.2.1",
-    "@hotwired/turbo": "^7.3.0",
+    "@hotwired/turbo": "^7.3.0"
+  },
+  "devDependencies": {
     "eslint": "^8.36.0",
     "prettier": "^2.8.7",
     "typescript": "^5.0.2"
