@@ -6,6 +6,7 @@ declare module "controllers/quiz_progress_controller" {
     get barTarget(): HTMLElement;
     get barTargets(): HTMLElement[];
     get hasBarTarget(): boolean;
+    initialize(): void;
     connect(): void;
     disconnect(): void;
     /**
