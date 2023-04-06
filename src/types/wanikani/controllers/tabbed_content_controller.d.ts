@@ -16,8 +16,17 @@ declare module "controllers/tabbed_content_controller" {
     get previousTabHotKeyValue(): string;
     set previousTabHotKeyValue(value: string);
     get hasPreviousTabHotKeyValue(): boolean;
+
+    observer: IntersectionObserver
+
     connect(): void;
     disconnect(): void;
     changeTab(event: Event): void;
+    showContent(slideId: string): void;
+    visibilityChange(observations: IntersectionObserverEntry[]): void;
+    registerHotKeys(): void;
+    deregisterHotKeys(): void;
+    handleNext(): void;
+    handlePrev(): void;
   }
 }
