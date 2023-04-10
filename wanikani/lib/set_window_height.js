@@ -1,7 +1,7 @@
 const setWindowHeight = () => {
   document.documentElement.style.setProperty(
     "--vh",
-    0.01 * visualViewport.height + "px"
+    `${(0.01 * visualViewport.height).toFixed(2)}px`
   );
 };
 setWindowHeight(),

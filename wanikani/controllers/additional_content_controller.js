@@ -2,6 +2,7 @@ import { Controller } from "@hotwired/stimulus";
 export default class extends Controller {
   static targets = ["content", "contentContainer", "contentToggle"];
   static classes = ["open", "toggleDisabled", "toggleOpen"];
+  static outlets = ["scrollable"];
   initialize() {
     (this.didAnswerQuestion = this.didAnswerQuestion.bind(this)),
       (this.willShowNextQuestion = this.willShowNextQuestion.bind(this)),
@@ -98,11 +99,7 @@ export default class extends Controller {
     } else t.preventDefault();
   }
   scrollContentIntoView() {
-    const t =
-      this.currentContainer.getBoundingClientRect().top +
-      document.documentElement.scrollTop -
-      60;
-    window.scrollTo({ top: t, left: 0, behavior: "smooth" });
+    this.scrollableOutlet.scrollToTop(this.currentContainer, 60);
   }
   contentLoaded() {
     this.currentContainer &&

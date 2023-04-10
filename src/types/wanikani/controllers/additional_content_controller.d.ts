@@ -4,6 +4,7 @@ declare module "controllers/additional_content_controller" {
   export default class extends Controller {
     static targets: string[];
     static classes: string[];
+    static outlets: string[];
 
     get openClass(): string;
     get openClasses(): string;
@@ -23,6 +24,11 @@ declare module "controllers/additional_content_controller" {
     get contentToggleTarget(): HTMLElement;
     get contentToggleTargets(): HTMLElement[];
     get hasContentToggleTarget(): boolean;
+    get scrollableOutlet(): Controller;
+    get scrollableOutlets(): Controller[];
+    get hasScrollableOutlet(): boolean;
+    get scrollableOutletElement(): HTMLElement;
+    get scrollableOutletElements(): HTMLElement[];
 
     initialize(): void;
 

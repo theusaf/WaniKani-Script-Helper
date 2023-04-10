@@ -17,7 +17,7 @@ export default class extends Controller {
     "exceptionContainer",
     "form",
   ];
-  static outlets = ["quiz-queue", "quiz-user-synonyms"];
+  static outlets = ["quiz-queue", "quiz-user-synonyms", "scrollable"];
   initialize() {
     (this.inputEnabled = !0),
       (this.answerChecker = new AnswerChecker()),
@@ -47,7 +47,7 @@ export default class extends Controller {
       }),
       window.addEventListener("connectionTimeout", this.disableInput),
       (this.element.dataset.hotkeyRegistered = !0),
-      this.inputTarget.focus();
+      this.focusOrNext();
   }
   disconnect() {
     window.visualViewport.removeEventListener("resize", this.scrollIntoView),
@@ -83,14 +83,14 @@ export default class extends Controller {
       "Space" === e.code && 229 !== e.keyCode && !this.inputEnabled)
     ) {
       const t = 0.85 * window.innerHeight * (e.shiftKey ? -1 : 1),
-        n = Math.ceil(document.documentElement.scrollTop + t);
-      window.scrollTo({ left: 0, top: n, behavior: "smooth" }),
+        i = Math.ceil(document.documentElement.scrollTop + t);
+      window.scrollTo({ left: 0, top: i, behavior: "smooth" }),
         e.preventDefault();
     }
     if (/(ArrowUp|ArrowDown)/.test(e.code) && !this.inputEnabled) {
       const t = "ArrowUp" === e.code ? -40 : 40,
-        n = Math.ceil(document.documentElement.scrollTop + t);
-      window.scrollTo({ left: 0, top: n, behavior: "smooth" }),
+        i = Math.ceil(document.documentElement.scrollTop + t);
+      window.scrollTo({ left: 0, top: i, behavior: "smooth" }),
         e.preventDefault();
     }
   }
@@ -117,16 +117,8 @@ export default class extends Controller {
       this.inputTarget.removeEventListener("input", this.handleInput);
   }
   scrollIntoView() {
-    if (document.activeElement === this.inputTarget && this.inputEnabled) {
-      const e =
-          this.inputTarget.getBoundingClientRect().bottom +
-          document.documentElement.scrollTop,
-        t =
-          e <= visualViewport.height
-            ? 0
-            : Math.floor(e - visualViewport.height);
-      document.documentElement.scrollTop = t;
-    }
+    document.activeElement === this.inputTarget &&
+      this.scrollableOutlet.scrollIntoView(this.inputTarget);
   }
   submitAnswer() {
     if (!this.hasQuizQueueOutlet || !this.hasQuizUserSynonymsOutlet) return;
@@ -151,18 +143,18 @@ export default class extends Controller {
     const t = this.quizUserSynonymsOutlet.synonymsForSubjectId(
         this.currentSubject.id
       ),
-      n = this.answerChecker.evaluate(
+      i = this.answerChecker.evaluate(
         this.currentQuestionType,
         e,
         this.currentSubject,
         t
       );
-    n.exception
-      ? (this.shakeForm(), this.showException(n.exception))
+    i.exception
+      ? (this.shakeForm(), this.showException(i.exception))
       : ((this.inputEnabled = !1),
         (this.lastAnswer = e),
-        this.inputContainerTarget.setAttribute("correct", n.passed),
-        this.quizQueueOutlet.submitAnswer(e, n));
+        this.inputContainerTarget.setAttribute("correct", i.passed),
+        this.quizQueueOutlet.submitAnswer(e, i));
   }
   updateQuestion(e) {
     (this.currentQuestionType = e.detail.questionType),
