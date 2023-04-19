@@ -35,7 +35,9 @@ export default class extends Controller {
   }
   connect() {
     this.inputTarget.addEventListener("keydown", this.handleKeyDown),
-      this.inputTarget.addEventListener("input", this.handleInput),
+      this.inputTarget.addEventListener("input", this.handleInput, {
+        capture: !0,
+      }),
       window.visualViewport.addEventListener("resize", this.scrollIntoView),
       window.keyboardManager.registerHotKey({
         key: "Enter",
@@ -52,7 +54,9 @@ export default class extends Controller {
   disconnect() {
     window.visualViewport.removeEventListener("resize", this.scrollIntoView),
       this.inputTarget.removeEventListener("keydown", this.handleKeyDown),
-      this.inputTarget.removeEventListener("input", this.handleInput),
+      this.inputTarget.removeEventListener("input", this.handleInput, {
+        capture: !0,
+      }),
       window.removeEventListener("willShowNextQuestion", this.updateQuestion),
       window.removeEventListener("connectionTimeout", this.disableInput),
       window.keyboardManager.deregisterHotKey({
@@ -80,28 +84,30 @@ export default class extends Controller {
   handleKeyDown(e) {
     if (
       ("Enter" === e.key && (e.preventDefault(), this.buttonTarget.click()),
-      "Space" === e.code && 229 !== e.keyCode && !this.inputEnabled)
+      "Space" !== e.code ||
+        229 === e.keyCode ||
+        this.inputEnabled ||
+        (e.shiftKey
+          ? this.scrollableOutlet.scrollPageUp()
+          : this.scrollableOutlet.scrollPageDown(),
+        e.preventDefault()),
+      /(ArrowUp|ArrowDown)/.test(e.code) && !this.inputEnabled)
     ) {
-      const t = 0.85 * window.innerHeight * (e.shiftKey ? -1 : 1),
-        i = Math.ceil(document.documentElement.scrollTop + t);
-      window.scrollTo({ left: 0, top: i, behavior: "smooth" }),
-        e.preventDefault();
-    }
-    if (/(ArrowUp|ArrowDown)/.test(e.code) && !this.inputEnabled) {
-      const t = "ArrowUp" === e.code ? -40 : 40,
-        i = Math.ceil(document.documentElement.scrollTop + t);
-      window.scrollTo({ left: 0, top: i, behavior: "smooth" }),
-        e.preventDefault();
+      const t = "ArrowUp" === e.code ? -40 : 40;
+      this.scrollableOutlet.scrollByOffset(t), e.preventDefault();
     }
   }
   handleInput(e) {
-    this.inputEnabled ||
-      (e.target.value.slice(0, -1) === this.lastAnswer &&
+    if (this.inputEnabled) {
+      const t = e.target.value;
+      this.inputChars = this.inputChars.concat(t.charAt(t.length - 1));
+    } else
+      e.target.value.slice(0, -1) === this.lastAnswer &&
         window.keyboardManager.handleHotKey(
           new CustomEvent("fakeKeyDownEvent"),
           e.target.value.slice(-1)
         ),
-      (this.inputTarget.value = this.lastAnswer));
+        (this.inputTarget.value = this.lastAnswer);
   }
   disableInput() {
     (this.inputTarget.disabled = !0),
@@ -143,18 +149,20 @@ export default class extends Controller {
     const t = this.quizUserSynonymsOutlet.synonymsForSubjectId(
         this.currentSubject.id
       ),
-      i = this.answerChecker.evaluate(
-        this.currentQuestionType,
-        e,
-        this.currentSubject,
-        t
-      );
-    i.exception
-      ? (this.shakeForm(), this.showException(i.exception))
+      n = this.answerChecker.evaluate({
+        questionType: this.currentQuestionType,
+        response: e,
+        item: this.currentSubject,
+        userSynonyms: t,
+        inputChars: this.inputChars,
+      });
+    n.exception
+      ? (this.shakeForm(), this.showException(n.exception))
       : ((this.inputEnabled = !1),
         (this.lastAnswer = e),
-        this.inputContainerTarget.setAttribute("correct", i.passed),
-        this.quizQueueOutlet.submitAnswer(e, i));
+        this.inputContainerTarget.setAttribute("correct", n.passed),
+        this.quizQueueOutlet.submitAnswer(e, n),
+        this.unbindWanakana());
   }
   updateQuestion(e) {
     (this.currentQuestionType = e.detail.questionType),
@@ -168,19 +176,23 @@ export default class extends Controller {
         this.currentQuestionType),
       (this.questionTypeContainerTarget.dataset.subjectId =
         this.currentSubject.id),
-      (this.inputTarget.value = "");
+      (this.inputTarget.value = ""),
+      (this.inputChars = "");
     const t = "true" === this.inputTarget.dataset.wanakanaBound;
-    "meaning" === this.currentQuestionType &&
-      t &&
+    "meaning" === this.currentQuestionType && t && this.unbindWanakana(),
+      "reading" !== this.currentQuestionType || t || this.bindWanakana();
+  }
+  bindWanakana() {
+    wanakana.bind(this.inputTarget),
+      (this.inputTarget.dataset.wanakanaBound = !0),
+      this.inputTarget.setAttribute("placeholder", "\u7b54\u3048");
+  }
+  unbindWanakana() {
+    "true" === this.inputTarget.dataset.wanakanaBound &&
       (wanakana.unbind(this.inputTarget),
       delete this.inputTarget.dataset.wanakanaBound,
       this.inputTarget.removeAttribute("lang"),
-      this.inputTarget.setAttribute("placeholder", "Your Response")),
-      "reading" !== this.currentQuestionType ||
-        t ||
-        (wanakana.bind(this.inputTarget),
-        (this.inputTarget.dataset.wanakanaBound = !0),
-        this.inputTarget.setAttribute("placeholder", "\u7b54\u3048"));
+      this.inputTarget.setAttribute("placeholder", "Your Response"));
   }
   appendKanaCharacter(e) {
     this.inputEnabled && (this.inputTarget.value += e);

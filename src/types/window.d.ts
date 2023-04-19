@@ -13,6 +13,7 @@ import {
   TurboLoadEvent,
 } from "@Hotwired/turbo";
 import { Application } from "@hotwired/stimulus";
+import { VisualViewportShim } from "./wanikani/lib/polyfills/visual_viewport";
 
 interface WaniKaniEvents {
   connectionTimeout: ConnectionTimeout;

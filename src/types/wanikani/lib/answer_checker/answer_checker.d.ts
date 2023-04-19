@@ -5,19 +5,17 @@ declare module "lib/answer_checker/answer_checker" {
     exception: string;
   }
 
-  export default class AnswerChecker {
-    evaluate(
-      questionType: "meaning" | "reading",
-      answer: string,
-      subject: Subject,
-      synonyms: string[]
-    ): QuestionAnswerResults | AnswerException;
+  export interface PluginArguments {
+    questionType: "meaning" | "reading";
+    response: string;
+    item: Subject;
+    useSynonyms: string[];
+    inputChars: string;
+  }
 
-    evaluatePlugins(
-      questionType: "meaning" | "reading",
-      answer: string,
-      subject: Subject,
-      answerResult: QuestionAnswerResults
-    ): string | null;
+  export default class AnswerChecker {
+    evaluate(input: PluginArguments): QuestionAnswerResults | AnswerException;
+
+    evaluatePlugins(input: PluginArguments): string | null;
   }
 }

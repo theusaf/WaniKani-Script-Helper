@@ -1,3 +1,4 @@
+import "lib/polyfills/visual_viewport";
 const setWindowHeight = () => {
   document.documentElement.style.setProperty(
     "--vh",

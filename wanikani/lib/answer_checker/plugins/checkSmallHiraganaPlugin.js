@@ -41,7 +41,11 @@ const joinWordsNicely = (e) =>
     "\u30e7": "\u30e8",
   },
   CLASSIFICATIONS = { typo: "typo", mistake: "mistake" };
-export default function checkSmallHiragana(e, t, n) {
+export default function checkSmallHiragana({
+  questionType: e,
+  response: t,
+  item: n,
+}) {
   if ("reading" !== e) return null;
   const r = getReadingsFromSubject(n)
       .map((e) => compareBigAndSmall(t, e))

@@ -1,3 +1,3 @@
-export default function checkKanjiPlugin(n, c, e) {
-  return e.characters === c || null;
+export default function checkKanjiPlugin({ response: e, item: n }) {
+  return n.characters === e || null;
 }

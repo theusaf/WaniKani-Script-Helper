@@ -1,10 +1,12 @@
-const getWarnList = (questionType, subject) =>
-  (subject?.[`auxiliary_${questionType}s`] || []).filter(
-    (t) => "warn" === t.type
+const getWarnList = (e, t) =>
+  (t?.[`auxiliary_${e}s`] || []).filter((e) => "warn" === e.type);
+export default function checkWarningList({
+  questionType: e,
+  response: t,
+  item: n,
+}) {
+  const s = getWarnList(e, n).find(
+    (n) => n[e].toLowerCase() === t.toLowerCase()
   );
-export default function checkWarningList(questionType, answer, subject) {
-  const r = getWarnList(questionType, subject).find(
-    (warnList) => warnList[questionType].toLowerCase() === answer.toLowerCase()
-  );
-  return r ? r.message : null;
+  return s ? s.message : null;
 }

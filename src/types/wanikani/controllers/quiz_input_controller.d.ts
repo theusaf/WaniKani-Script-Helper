@@ -1,4 +1,5 @@
 declare module "controllers/quiz_input_controller" {
+  import { Subject } from "events/did_answer_question";
   import AnswerChecker from "lib/answer_checker/answer_checker";
   import WillShowNextQuestionEvent from "events/will_show_next_question";
   import QuizUserSynonymsController from "controllers/quiz_user_synonyms_controller";
@@ -46,11 +47,12 @@ declare module "controllers/quiz_input_controller" {
     get quizUserSynonymsOutletElements(): HTMLElement[];
     get hasQuizUserSynonymsOutlet(): boolean;
 
-    get inputEnabled(): boolean;
-    set inputEnabled(value: boolean);
-
+    inputEnabled: boolean;
     answerChecker: AnswerChecker;
     lastAnswer: string;
+    inputChars: string;
+    currentQuestionType: string;
+    currentSubject: Subject;
 
     /**
      * Initializes the controller and sets up some event listeners.
@@ -86,5 +88,7 @@ declare module "controllers/quiz_input_controller" {
     shakeForm(): void;
     showException(event: Event): void;
     clearException(): void;
+    bindWanakana(): void;
+    unbindWanakana(): void;
   }
 }

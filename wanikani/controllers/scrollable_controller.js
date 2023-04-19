@@ -29,4 +29,14 @@ export default class extends Controller {
     const s = t.getBoundingClientRect().top + this.element.scrollTop - e;
     this.element.scrollTo({ top: s, left: 0, behavior: "smooth" });
   }
+  scrollPageDown() {
+    this.scrollByOffset(0.85 * visualViewport.height);
+  }
+  scrollPageUp() {
+    this.scrollByOffset(-0.85 * visualViewport.height);
+  }
+  scrollByOffset(t) {
+    const e = Math.ceil(this.element.scrollTop + t);
+    this.element.scrollTo({ left: 0, top: e, behavior: "smooth" });
+  }
 }

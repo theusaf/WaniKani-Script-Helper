@@ -16,5 +16,8 @@ declare module "controllers/scrollable_controller" {
     adjustOffset(): void;
     scrollIntoView(element: HTMLElement): void;
     scrollToTop(element: HTMLElement, offset: number): void;
+    scrollPageDown(): void;
+    scrollPageUp(): void;
+    scrollByOffset(offset: number): void;
   }
 }

@@ -1,5 +1,6 @@
 declare module "lib/answer_checker/plugins/checkThatVerbStartsWithToPlugin" {
-  import { Subject } from "events/did_answer_question";
+  import { QuestionAnswerResults, Subject } from "events/did_answer_question";
+  import { PluginArguments } from "lib/answer_checker/answer_checker";
 
   /**
    * Checks that verb answers start with 'to'.
@@ -10,8 +11,6 @@ declare module "lib/answer_checker/plugins/checkThatVerbStartsWithToPlugin" {
    * @param subject
    */
   export default function checkThatVerbStartsWithTo(
-    questionType: "meaning" | "reading",
-    answer: string,
-    subject: Subject
+    input: PluginArguments
   ): string | null;
 }

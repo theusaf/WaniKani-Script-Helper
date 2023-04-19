@@ -13,22 +13,22 @@ function kanjiReadingChecker(e, n) {
     t = n.auxiliary_readings
       .filter((e) => "whitelist" === e.type)
       .map((e) => e.reading);
-  let a = n[n.primary_reading_type];
-  a = a.concat(t);
-  const r = i
+  let r = n[n.primary_reading_type];
+  r = r.concat(t);
+  const a = i
       .filter((e) => e !== n.primary_reading_type)
       .reduce((e, i) => e.concat(n[i]), []),
-    c = a.length > 1,
-    s = { onyomi: "on\u2019yomi", kunyomi: "kun\u2019yomi", nanori: "nanori" };
-  let l = -1 !== r.indexOf(e) && -1 === a.indexOf(e);
+    s = r.length > 1,
+    c = { onyomi: "on\u2019yomi", kunyomi: "kun\u2019yomi", nanori: "nanori" };
+  let o = -1 !== a.indexOf(e) && -1 === r.indexOf(e);
   return (
-    l &&
-      (l = `WaniKani is looking for the ${s[n.primary_reading_type]} reading.`),
+    o &&
+      (o = `WaniKani is looking for the ${c[n.primary_reading_type]} reading.`),
     {
-      passed: -1 !== a.indexOf(e),
-      accurate: -1 !== a.indexOf(e),
-      multipleAnswers: c,
-      exception: l,
+      passed: -1 !== r.indexOf(e),
+      accurate: -1 !== r.indexOf(e),
+      multipleAnswers: s,
+      exception: o,
     }
   );
 }
@@ -51,12 +51,12 @@ function getFullMeaningAnswerList(e, n, i) {
   const t = e.auxiliary_meanings
     .filter((e) => "whitelist" === e.type)
     .map((e) => e.meaning);
-  let a = e.meanings
+  let r = e.meanings
     .concat(i)
     .concat(t)
     .map((e) => normalizeResponse(e));
-  const r = a.filter((e) => hasDigits(e));
-  return hasDigits(n) && r.length > 0 && (a = r), a;
+  const a = r.filter((e) => hasDigits(e));
+  return hasDigits(n) && a.length > 0 && (r = a), r;
 }
 function isBlacklisted(e, n) {
   return (
@@ -82,13 +82,13 @@ function isPassing(e, n) {
 }
 function meaningChecker(e, n, i) {
   let t = !1,
-    a = !1;
-  const r = !1,
-    c = getFullMeaningAnswerList(n, e, i),
-    s = n.meanings.length > 1;
+    r = !1;
+  const a = !1,
+    s = getFullMeaningAnswerList(n, e, i),
+    c = n.meanings.length > 1;
   return (
-    isBlacklisted(n, e) || ((a = isAccurate(c, e)), (t = isPassing(c, e))),
-    { passed: t, accurate: a, multipleAnswers: s, exception: r }
+    isBlacklisted(n, e) || ((r = isAccurate(s, e)), (t = isPassing(s, e))),
+    { passed: t, accurate: r, multipleAnswers: c, exception: a }
   );
 }
 function isInSynonyms(e, n, i) {
@@ -106,11 +106,12 @@ import { normalizeResponse } from "lib/answer_checker/utils/response_helpers";
 import checkKanji from "lib/answer_checker/plugins/checkKanjiPlugin";
 import checkLongDash from "lib/answer_checker/plugins/checkLongDashPlugin";
 import checkN from "lib/answer_checker/plugins/checkNPlugin";
-import checkSingleKanjiVocab from "lib/answer_checker/plugins/checkSingleKanjiVocabPlugin";
+import checkRelatedMeaningsAndReadings from "lib/answer_checker/plugins/checkRelatedMeaningsAndReadingsPlugin";
 import checkSmallHiragana from "lib/answer_checker/plugins/checkSmallHiraganaPlugin";
 import checkThatVerbStartsWithTo from "lib/answer_checker/plugins/checkThatVerbStartsWithToPlugin";
 import checkTransliterated from "lib/answer_checker/plugins/checkTransliteratedPlugin";
 import checkWarningList from "lib/answer_checker/plugins/checkWarningListPlugin";
+import checkKanjiDoesNotStartWithTo from "lib/answer_checker/plugins/check_kanji_does_not_start_with_to";
 const evaluators = {
   Kanji: { reading: kanjiReadingChecker, meaning: meaningChecker },
   Vocabulary: { reading: vocabularyReadingChecker, meaning: meaningChecker },
@@ -118,42 +119,43 @@ const evaluators = {
   KanaVocabulary: { meaning: meaningChecker },
 };
 export default class AnswerChecker {
-  evaluate(questionType, answer, subject, synonyms) {
-    let a = normalizeResponse(answer);
-    const answerResult = (0, evaluators[subject.type][questionType])(
-      a,
-      subject,
-      synonyms
-    );
-    if (
-      ((answerResult.passed && !answerResult.accurate) ||
-        !answerResult.passed) &&
-      !isInSynonyms(questionType, answer, synonyms)
-    ) {
-      const exception = this.evaluatePlugins(
-        questionType,
-        answer,
-        subject,
-        answerResult
-      );
-      if (exception) return { exception: exception };
+  evaluate({
+    questionType: e,
+    response: n,
+    item: i,
+    userSynonyms: t,
+    inputChars: r,
+  }) {
+    let a = normalizeResponse(n);
+    const s = (0, evaluators[i.type][e])(a, i, t);
+    if (((s.passed && !s.accurate) || !s.passed) && !isInSynonyms(e, n, t)) {
+      const a = this.evaluatePlugins({
+        questionType: e,
+        response: n,
+        item: i,
+        result: s,
+        inputChars: r,
+        userSynonyms: t,
+      });
+      if (a) return { exception: a };
     }
-    return answerResult;
+    return s;
   }
-  evaluatePlugins(questionType, answer, subject, answerResult) {
-    const plugins = [
-      checkSingleKanjiVocab,
-      checkTransliterated,
+  evaluatePlugins(e) {
+    const n = [
       checkWarningList,
+      checkTransliterated,
+      checkRelatedMeaningsAndReadings,
       checkKanji,
       checkLongDash,
       checkThatVerbStartsWithTo,
       checkSmallHiragana,
       checkN,
+      checkKanjiDoesNotStartWithTo,
     ];
-    for (let i = 0; i < plugins.length; i += 1) {
-      const result = plugins[i](questionType, answer, subject, answerResult);
-      if (result) return result;
+    for (let i = 0; i < n.length; i += 1) {
+      const t = n[i](e);
+      if (t) return t;
     }
     return null;
   }

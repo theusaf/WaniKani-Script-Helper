@@ -1,5 +1,5 @@
 declare module "lib/answer_checker_plugins/checkSmallHiraganaPlugin" {
-  import { Subject } from "events/did_answer_question";
+  import { PluginArguments } from "lib/answer_checker/answer_checker";
   /**
    * Checks if the answer contains the large kana when it should be small.
    * Will create a warning if so.
@@ -9,8 +9,6 @@ declare module "lib/answer_checker_plugins/checkSmallHiraganaPlugin" {
    * @param subject
    */
   export default function checkSmallHiragana(
-    questionType: "meaning" | "reading",
-    answer: string,
-    subject: Subject
-  ): true | null;
+    input: PluginArguments
+  ): string | null;
 }

@@ -1,5 +1,5 @@
 declare module "lib/answer_checker/plugins/checkTransliteratedPlugin" {
-  import { Subject } from "events/did_answer_question";
+  import { PluginArguments } from "lib/answer_checker/answer_checker";
 
   /**
    * Checks for readings entered during a meaning question.
@@ -10,8 +10,6 @@ declare module "lib/answer_checker/plugins/checkTransliteratedPlugin" {
    * @param subject
    */
   export default function checkTransliterated(
-    questionType: "meaning" | "reading",
-    answer: string,
-    subject: Subject
+    input: PluginArguments
   ): string | null;
 }

@@ -1,17 +1,9 @@
 declare module "lib/answer_checker/plugins/checkKanjiPlugin" {
-  import { Subject } from "events/did_answer_question";
+  import { PluginArguments } from "lib/answer_checker/answer_checker";
 
   /**
    * Checks if the answer is the kanji.
    * Will create a warning if so.
-   *
-   * @param _ unused
-   * @param answer
-   * @param subject
    */
-  export default function checkKanjiPlugin(
-    _: any,
-    answer: string,
-    subject: Subject
-  ): true | null;
+  export default function checkKanjiPlugin(input: PluginArguments): true | null;
 }
