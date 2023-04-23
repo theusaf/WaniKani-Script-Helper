@@ -1,3 +1,7 @@
+# 2023-04-23
+
+Adds a new plugin to check for impossible kana combinations.
+
 # 2023-04-19
 
 ## `ScrollableController`

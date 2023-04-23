@@ -26,18 +26,24 @@ const customRomajiMapping = {
       };
     return (
       e.forEach((n, o) => {
-        if (n.startsWith("n") && !(o < t)) {
-          if ("n" === n) {
-            const n = e[o + 1];
-            n && /^[aeiou]$/.test(n) && i(cloneAndSplice(e, o + 1, 1, `n${n}`)),
-              n &&
-                /^(ya|yu|yo)$/.test(n) &&
-                i(cloneAndSplice(e, o + 1, 0, "ni"));
-          }
-          if (/^n[aeiou]$/.test(n) && o > 0 && "n" !== e[o - 1]) {
-            const t = cloneAndSplice(e, o, 1, "n", n.charAt(1));
-            i(t, o + 1);
-          }
+        if (!n.startsWith("n") || o < t) return;
+        const a = e[o + 1];
+        if (
+          ("n" === n &&
+            (a &&
+              /^[aeiou]$/.test(a) &&
+              i(cloneAndSplice(e, o + 1, 1, `n${a}`)),
+            a &&
+              /^(ya|yu|yo)$/.test(a) &&
+              i(cloneAndSplice(e, o + 1, 0, "ni"))),
+          /^n[aeiou]$/.test(n) && o > 0 && "n" !== e[o - 1])
+        ) {
+          const t = cloneAndSplice(e, o, 1, "n", n.charAt(1));
+          i(t, o + 1),
+            "ni" === n &&
+              a &&
+              /^(ya|yu|yo)$/.test(a) &&
+              i(cloneAndSplice(e, o, 1, "n"), o + 1);
         }
       }),
       n
