@@ -1,30 +1,33 @@
 function isIMEEquivalent(e, n) {
-  return toHiragana(e) === toHiragana(n, { IMEMode: !0 });
+  return toHiragana(e) === toHiragana(addMissingNs(n), { IMEMode: !0 });
 }
 import getReadingsFromSubject from "lib/answer_checker/utils/get_readings_from_subject";
 import { toHiragana } from "wanakana";
-const matchesReading = (e, n, t) =>
+const missingNRegEx = /[^n]n$/g,
+  missingNReplacer = (e) => e.replace("n", "nn"),
+  addMissingNs = (e) => e.replaceAll(missingNRegEx, missingNReplacer),
+  matchesReading = (e, n, a) =>
     "meaning" === n &&
-    getReadingsFromSubject(e).some((e) => isIMEEquivalent(e, t)),
-  matchesMeaning = (e, n, t) => {
-    const a = t.toLowerCase();
-    return "reading" === n && e.some((e) => a === e.toLowerCase());
+    getReadingsFromSubject(e).some((e) => isIMEEquivalent(e, a)),
+  matchesMeaning = (e, n, a) => {
+    const t = a.toLowerCase();
+    return "reading" === n && e.some((e) => t === e.toLowerCase());
   };
 export default function checkTransliterated({
   questionType: e,
   response: n,
-  item: t,
-  result: a,
-  inputChars: r,
+  item: a,
+  result: t,
+  inputChars: s,
   userSynonyms: i,
 }) {
-  if (a.passed) return null;
-  let s = null;
+  if (t.passed) return null;
+  let r = null;
   return (
-    matchesReading(t, e, n) &&
-      (s = "Oops, we want the meaning, not the reading."),
-    matchesMeaning(t.meanings.concat(i), e, r) &&
-      (s = "Oops, we want the reading, not the meaning."),
-    s
+    matchesReading(a, e, n) &&
+      (r = "Oops, we want the meaning, not the reading."),
+    matchesMeaning(a.meanings.concat(i), e, s) &&
+      (r = "Oops, we want the reading, not the meaning."),
+    r
   );
 }
