@@ -1,3 +1,23 @@
+# 2023-05-15
+
+## Plugins
+
+All plugins now use the `Plugin` class.
+See commit history/code for details.
+
+## `Plugin`
+
+An abstract class that plugins extend.
+
+- `get shouldEvaluate()`
+- `get readings()`
+- `evaluate()`
+
+## `AnswerChecker`
+
+- `get plugins()` - returns the list of plugins (read-only)
+- `messageForItemInfo()`
+
 # 2023-04-23
 
 Adds a new plugin to check for impossible kana combinations.

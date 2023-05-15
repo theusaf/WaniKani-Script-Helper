@@ -39,7 +39,7 @@ export default class extends Controller {
         !0
       );
       (e.src = t.characters.url),
-        e.setAttribute("alt", t.characters.meaning),
+        e.setAttribute("aria-label", t.characters.meaning),
         this.charactersTarget.replaceChildren(e);
     }
     this.hasSrsContainerTarget && (this.srsContainerTarget.hidden = !0);

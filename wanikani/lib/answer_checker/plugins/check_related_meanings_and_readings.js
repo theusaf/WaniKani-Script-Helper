@@ -1,19 +1,19 @@
+import { Plugin } from "lib/answer_checker/plugins/plugin";
+import {
+  answerActionRetry,
+  answerException,
+} from "lib/answer_checker/utils/constants";
 import { toHiragana } from "wanakana";
 const normalize = (a, n) =>
     "reading" === n ? toHiragana(a.trim()) : a.trim().toLowerCase(),
   extractMeanings = (a, n) => ((a && a[n]) || []).flatMap((a) => a.meanings),
   extractReadings = (a, n) => ((a && a[n]) || []).flatMap((a) => a.readings),
-  hasPopulatedArray = (a, n) => a && a[n] && a[n].length > 0,
   normalizeArray = (a, n) => a.map((a) => normalize(a, n)),
   hasMatchingAnswers = (a, n, e) => -1 !== normalizeArray(a, n).indexOf(e),
   hasMatchingMeanings = (a, n, e) =>
     hasMatchingAnswers(extractMeanings(a, n), "meaning", e),
   hasMatchingReadings = (a, n, e) =>
     hasMatchingAnswers(extractReadings(a, n), "reading", e),
-  shouldProcessRelatedMeaningsAndReadings = (a) =>
-    hasPopulatedArray(a, "radicals") ||
-    hasPopulatedArray(a, "kanji") ||
-    hasPopulatedArray(a, "vocabulary"),
   messages = {
     Radical: {
       meaning: (a, n) =>
@@ -38,12 +38,25 @@ const normalize = (a, n) =>
         "Oops, we want the vocabulary reading, not the kanji reading.",
     },
   };
-export default function checkRelatedMeaningsAndReadings({
-  questionType: a,
-  response: n,
-  item: e,
-}) {
-  if (!shouldProcessRelatedMeaningsAndReadings(e)) return null;
-  const i = normalize(n, a);
-  return messages[e.type][a](e, i);
+export class CheckRelatedMeaningsAndReadings extends Plugin {
+  get shouldEvaluate() {
+    return (
+      this.hasPopulatedArray("radicals") ||
+      this.hasPopulatedArray("kanji") ||
+      this.hasPopulatedArray("vocabulary")
+    );
+  }
+  evaluate() {
+    const a = normalize(this.response, this.questionType),
+      n = messages[this.item.type][this.questionType](this.item, a);
+    return n
+      ? {
+          action: answerActionRetry,
+          message: { type: answerException, text: n },
+        }
+      : null;
+  }
+  hasPopulatedArray(a) {
+    return this.item[a] && this.item[a].length > 0;
+  }
 }

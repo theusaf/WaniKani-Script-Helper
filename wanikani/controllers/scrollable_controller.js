@@ -9,12 +9,14 @@ export default class extends Controller {
       window.visualViewport.addEventListener("scroll", this.adjustOffset);
   }
   disconnect() {
-    this.bodyOutlet.unfreeze(),
-      window.visualViewport.removeEventListener("resize", this.adjustOffset),
+    window.visualViewport.removeEventListener("resize", this.adjustOffset),
       window.visualViewport.removeEventListener("scroll", this.adjustOffset);
   }
   bodyOutletConnected(t) {
     t.freeze();
+  }
+  bodyOutletDisconnected(t) {
+    t.unfreeze();
   }
   adjustOffset() {
     this.element.style.top = `${visualViewport.offsetTop}px`;

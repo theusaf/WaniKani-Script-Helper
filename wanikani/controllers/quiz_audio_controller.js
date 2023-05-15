@@ -1,5 +1,7 @@
 import { Controller } from "@hotwired/stimulus";
 import { getSources } from "audio/get_sources";
+import { preventAudioClipping } from "lib/polyfills/prevent_audio_clipping";
+import { answerActionPass } from "lib/answer_checker/utils/constants";
 export default class extends Controller {
   static targets = ["audio", "icon", "playButton"];
   static classes = ["playing", "stopped", "disabled"];
@@ -69,17 +71,24 @@ export default class extends Controller {
     this.loadAudio(o),
       this.canPlay &&
         this.autoPlayValue &&
-        t.detail.results.passed &&
+        a.action === answerActionPass &&
         this.play();
   }
   play() {
     !this.playing &&
       this.canPlay &&
-      (window.dispatchEvent(new CustomEvent("audioWillPlay")),
-      (this.playing = !0),
-      this.iconTarget.classList.remove(this.stoppedClass),
-      this.iconTarget.classList.add(this.playingClass),
-      this.audioTarget.play());
+      (preventAudioClipping(),
+      window.dispatchEvent(new CustomEvent("audioWillPlay")),
+      this.audioTarget
+        .play()
+        .then(() => {
+          (this.playing = !0),
+            this.iconTarget.classList.remove(this.stoppedClass),
+            this.iconTarget.classList.add(this.playingClass);
+        })
+        .catch((t) => {
+          console.error(t.name, t.message);
+        }));
   }
   stop() {
     this.clearOnStop

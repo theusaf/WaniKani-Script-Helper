@@ -1,6 +1,11 @@
 declare module "lib/answer_checker/plugins/check_impossible_kana" {
-  import { PluginArguments } from "lib/answer_checker/answer_checker";
-  export default function checkImpossibleKana(
-    input: PluginArguments
-  ): null | string;
+  import { Plugin } from "lib/answer_checker/plugins/plugin";
+
+  export class CheckImpossibleKana extends Plugin {
+    get containsImpossibleKana(): boolean;
+    get containsInvalidSmallYaYuYo(): boolean;
+    get containsInvalidSmallTSU(): boolean;
+    get containsInvalidAdjacentCharacters(): boolean;
+    get containsInvalidStartingCharacter(): boolean;
+  }
 }

@@ -5,6 +5,7 @@ import WillShowNextQuestionEvent from "events/will_show_next_question";
 import CachedStats from "controllers/quiz_queue/cached_stats";
 import WrapUpManager from "controllers/quiz_queue/wrap_up_manager";
 import SRSManager from "controllers/quiz_queue/srs_manager";
+import { answerActionPass } from "lib/answer_checker/utils/constants";
 export default class QuizQueue {
   constructor({
     queue: e,
@@ -12,8 +13,8 @@ export default class QuizQueue {
     remainingIds: i,
     srsMap: s,
     completeSubjectsInOrder: n,
-    questionOrder: u,
-    onDone: r,
+    questionOrder: r,
+    onDone: u,
   }) {
     (this.maxActiveQueueSize = 10),
       (this.minBacklogQueueSize = 20),
@@ -26,11 +27,11 @@ export default class QuizQueue {
       (this.wrapUpManager = new WrapUpManager(this.activeQueue.length)),
       (this.srsManager = new SRSManager(s)),
       (this.remainingIds = i),
-      (this.onDone = r),
+      (this.onDone = u),
       (this.totalItems = this.remainingQueueLength),
       this.updateQuizProgress(0),
       (this.completeSubjectsInOrder = n),
-      (this.questionOrder = u);
+      (this.questionOrder = r);
   }
   nextItem(e) {
     if (
@@ -59,26 +60,27 @@ export default class QuizQueue {
       );
   }
   submitAnswer(e, t) {
-    const i = this.updateCurrentItemStats(t.passed),
-      s = JSON.parse(JSON.stringify({ subject: this.currentItem, stats: i }));
+    const i = t.action === answerActionPass,
+      s = this.updateCurrentItemStats(i),
+      n = JSON.parse(JSON.stringify({ subject: this.currentItem, stats: s }));
     window.dispatchEvent(
       new DidAnswerQuestionEvent({
-        subjectWithStats: s,
+        subjectWithStats: n,
         questionType: this.questionType,
         answer: e,
         results: t,
       })
     ),
-      i.reading.complete && i.meaning.complete
-        ? (this.api.itemComplete({ item: this.currentItem, stats: i }),
+      s.reading.complete && s.meaning.complete
+        ? (this.api.itemComplete({ item: this.currentItem, stats: s }),
           window.dispatchEvent(
-            new DidCompleteSubjectEvent({ subjectWithStats: s })
+            new DidCompleteSubjectEvent({ subjectWithStats: n })
           ),
-          this.srsManager.updateSRS({ subject: this.currentItem, stats: i }),
+          this.srsManager.updateSRS({ subject: this.currentItem, stats: s }),
           this.updateQueues(),
           this.updateQuizProgress(),
           this.stats.delete(this.currentItem))
-        : this.completeSubjectsInOrder || this.shuffleFirstItem(t.passed);
+        : this.completeSubjectsInOrder || this.shuffleFirstItem(i);
   }
   updateCurrentItemStats(e) {
     const t = this.stats.get(this.currentItem);

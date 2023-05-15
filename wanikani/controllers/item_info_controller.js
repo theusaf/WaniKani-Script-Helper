@@ -1,4 +1,6 @@
 import { Controller } from "@hotwired/stimulus";
+import { itemInfoException } from "lib/answer_checker/utils/constants";
+import { answerActionFail } from "lib/answer_checker/utils/constants";
 export default class extends Controller {
   static classes = ["toggleDisabled", "exceptionHidden"];
   static targets = ["toggle", "exception"];
@@ -16,20 +18,20 @@ export default class extends Controller {
     window.removeEventListener("willShowNextQuestion", this.disable),
       window.removeEventListener("didAnswerQuestion", this.enable);
   }
-  enable(e) {
-    const { subjectWithStats: t, questionType: s, results: i } = e.detail;
+  enable(t) {
+    const { subjectWithStats: e, results: i } = t.detail;
     if (
-      (this.showException(s, i),
+      (this.showException(i),
       this.toggleTarget.classList.remove(this.toggleDisabledClass),
       this.toggleTarget.setAttribute(
         "href",
-        this.urlTemplate.replace(":id", t.subject.id)
+        this.urlTemplate.replace(":id", e.subject.id)
       ),
       this.autoOpenAfterIncorrectCountValue > 0)
     ) {
-      const { meaning: t, reading: s } = e.detail.subjectWithStats.stats;
-      !i.passed &&
-        (t.incorrect >= this.autoOpenAfterIncorrectCountValue ||
+      const { meaning: e, reading: s } = t.detail.subjectWithStats.stats;
+      i.action === answerActionFail &&
+        (e.incorrect >= this.autoOpenAfterIncorrectCountValue ||
           s.incorrect >= this.autoOpenAfterIncorrectCountValue) &&
         this.toggleTarget.click();
     }
@@ -38,20 +40,11 @@ export default class extends Controller {
     this.hideException(),
       this.toggleTarget.classList.add(this.toggleDisabledClass);
   }
-  showException(e, t) {
-    let s = "";
-    t.passed
-      ? t.passed && t.accurate && t.multipleAnswers
-        ? (s = `Did you know this item has multiple possible ${e}s?`)
-        : t.passed &&
-          !t.accurate &&
-          (s = `Your answer was a bit off. Check the ${e} to make sure you are correct.`)
-      : (s = `Need help? View the correct ${e} and mnemonic.`),
-      (this.exceptionTarget.textContent = s),
-      this.exceptionTarget.classList.toggle(
-        this.exceptionHiddenClass,
-        "" === s
-      );
+  showException(t) {
+    t.message &&
+      t.message.type === itemInfoException &&
+      ((this.exceptionTarget.textContent = t.message.text),
+      this.exceptionTarget.classList.remove(this.exceptionHiddenClass));
   }
   hideException() {
     (this.exceptionTarget.textContent = ""),

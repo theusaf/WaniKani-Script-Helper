@@ -1,23 +1,31 @@
-const matchesMeaning = (t, e) => {
-    const s = e.substring(3).toLowerCase();
-    return t.some((t) => s === t.toLowerCase());
-  },
-  shouldNotCheck = (t, e, s, o) =>
-    t.passed ||
-    "reading" === e ||
-    "Kanji" !== s.type ||
-    !o.toLowerCase().startsWith("to ");
-export default function checkKanjiDoesNotStartWithTo({
-  questionType: t,
-  response: e,
-  item: s,
-  result: o,
-}) {
-  if (shouldNotCheck(o, t, s, e)) return null;
-  let n = null;
-  return (
-    matchesMeaning(s.meanings, e) &&
-      (n = 'This is a kanji, so it doesn\u2019t start with "to".'),
-    n
-  );
+import { Plugin } from "lib/answer_checker/plugins/plugin";
+import {
+  answerActionRetry,
+  answerException,
+} from "lib/answer_checker/utils/constants";
+export class CheckKanjiDoesNotStartWithTo extends Plugin {
+  get shouldEvaluate() {
+    return (
+      !this.result.passed &&
+      "meaning" === this.questionType &&
+      "Kanji" === this.item.type &&
+      this.response.toLowerCase().startsWith("to ")
+    );
+  }
+  evaluate() {
+    if (this.hasMatchedMeaning) {
+      return {
+        action: answerActionRetry,
+        message: {
+          type: answerException,
+          text: 'This is a kanji, so it doesn\u2019t start with "to".',
+        },
+      };
+    }
+    return null;
+  }
+  get hasMatchedMeaning() {
+    const t = this.response.substring(3).toLowerCase();
+    return this.item.meanings.some((e) => t === e.toLowerCase());
+  }
 }

@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus";
+import { answerActionFail } from "lib/answer_checker/utils/constants";
 export default class extends Controller {
   static targets = ["percentCorrect", "completeCount", "remainingCount"];
   initialize() {
@@ -25,7 +26,8 @@ export default class extends Controller {
       (this.remainingCountTarget.innerText = this.remainingCount);
   }
   didAnswerQuestion({ detail: { results: t } }) {
-    t.passed || (this.incorrectCount += 1), (this.answeredCount += 1);
+    t.action === answerActionFail && (this.incorrectCount += 1),
+      (this.answeredCount += 1);
     const e = Math.round(
       (100 * (this.answeredCount - this.incorrectCount)) / this.answeredCount
     );

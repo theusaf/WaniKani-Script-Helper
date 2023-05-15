@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus";
+import { preventAudioClipping } from "lib/polyfills/prevent_audio_clipping";
 export default class extends Controller {
   static targets = ["audio", "control"];
   static classes = ["playing", "stopped"];
@@ -20,7 +21,8 @@ export default class extends Controller {
   play(t) {
     t?.preventDefault(),
       this.playing ||
-        (window.dispatchEvent(new CustomEvent("audioWillPlay")),
+        (preventAudioClipping(),
+        window.dispatchEvent(new CustomEvent("audioWillPlay")),
         this.audioTarget
           .play()
           .then(() => {

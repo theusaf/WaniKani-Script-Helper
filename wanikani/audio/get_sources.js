@@ -1,36 +1,34 @@
 import { toHiragana } from "wanakana";
+import { answerActionPass } from "lib/answer_checker/utils/constants";
 const newSource = (e) => {
-    const audioSource = document.createElement("source");
+    const r = document.createElement("source");
     return (
-      audioSource.setAttribute("src", e.url),
-      audioSource.setAttribute("content_type", e.content_type),
-      audioSource
+      r.setAttribute("src", e.url),
+      r.setAttribute("content_type", e.content_type),
+      r
     );
   },
   getSources = ({
-    subject,
-    questionType,
-    answer,
-    results,
-    preferredVoiceActorId: preferredActor,
+    subject: e,
+    questionType: r,
+    answer: t,
+    results: n,
+    preferredVoiceActorId: o,
   }) => {
-    let source = [];
-    if ("reading" === questionType && subject.readings) {
-      let reading = results.passed ? answer : subject.readings[0].reading,
-        readingMatch = subject.readings.find((e) => e.reading === reading);
+    let a = [];
+    if ("reading" === r && e.readings) {
+      let r = n.action == answerActionPass ? t : e.readings[0].reading,
+        s = e.readings.find((e) => e.reading === r);
       if (
-        (readingMatch ||
-          ((reading = toHiragana(reading, { convertLongVowelMark: !1 })),
-          (readingMatch = subject.readings.find((e) => e.reading === reading))),
-        readingMatch)
+        (s ||
+          ((r = toHiragana(r, { convertLongVowelMark: !1 })),
+          (s = e.readings.find((e) => e.reading === r))),
+        s)
       ) {
-        const pronounciation = readingMatch.pronunciations.find(
-          (e) => e.actor.id === preferredActor
-        );
-        pronounciation &&
-          (source = pronounciation.sources.map((e) => newSource(e)));
+        const e = s.pronunciations.find((e) => e.actor.id === o);
+        e && (a = e.sources.map((e) => newSource(e)));
       }
     }
-    return source;
+    return a;
   };
 export { getSources };

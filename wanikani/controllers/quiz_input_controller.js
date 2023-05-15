@@ -4,6 +4,11 @@ import {
   normalizeReadingResponse,
   questionTypeAndResponseMatch,
 } from "lib/answer_checker/utils/response_helpers";
+import {
+  answerActionPass,
+  answerActionRetry,
+  answerException,
+} from "lib/answer_checker/utils/constants";
 import * as wanakana from "wanakana";
 export default class extends Controller {
   static targets = [
@@ -156,11 +161,14 @@ export default class extends Controller {
         userSynonyms: t,
         inputChars: this.inputChars,
       });
-    n.exception
-      ? (this.shakeForm(), this.showException(n.exception))
+    n.action === answerActionRetry
+      ? (this.shakeForm(), this.showException(n))
       : ((this.inputEnabled = !1),
         (this.lastAnswer = e),
-        this.inputContainerTarget.setAttribute("correct", n.passed),
+        this.inputContainerTarget.setAttribute(
+          "correct",
+          n.action === answerActionPass
+        ),
         this.quizQueueOutlet.submitAnswer(e, n),
         this.unbindWanakana());
   }
@@ -210,8 +218,9 @@ export default class extends Controller {
       this.inputContainerTarget.classList.add("effects--shake");
   }
   showException(e) {
-    "string" == typeof e &&
-      ((this.exceptionTarget.innerText = e),
+    e.message &&
+      e.message.type === answerException &&
+      ((this.exceptionTarget.innerText = e.message.text),
       (this.exceptionContainerTarget.hidden = !1));
   }
   clearException() {

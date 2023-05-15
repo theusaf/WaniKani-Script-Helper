@@ -13,6 +13,7 @@ declare module "controllers/scrollable_controller" {
     connect(): void;
     disconnect(): void;
     bodyOutletConnected(body: Controller): void;
+    bodyOutletDisconnected(body: Controller): void;
     adjustOffset(): void;
     scrollIntoView(element: HTMLElement): void;
     scrollToTop(element: HTMLElement, offset: number): void;

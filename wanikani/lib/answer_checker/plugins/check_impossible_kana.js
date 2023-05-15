@@ -1,6 +1,31 @@
-class ImpossibleKanaValidator {
-  constructor(a) {
-    this.response = a;
+import { Plugin } from "lib/answer_checker/plugins/plugin";
+import {
+  answerActionRetry,
+  answerException,
+} from "lib/answer_checker/utils/constants";
+export class CheckImpossibleKana extends Plugin {
+  get shouldEvaluate() {
+    return !this.result.passed && "reading" === this.questionType;
+  }
+  evaluate() {
+    if (this.containsImposssibleKana) {
+      return {
+        action: answerActionRetry,
+        message: {
+          type: answerException,
+          text: "That looks like a typo. Do you want to retry?",
+        },
+      };
+    }
+    return null;
+  }
+  get containsImposssibleKana() {
+    return (
+      this.containsInvalidStartingCharacter ||
+      this.containsInvalidAdjacentCharacters ||
+      this.containsInvalidSmallTSU ||
+      this.containsInvalidSmallYaYuYo
+    );
   }
   get containsInvalidSmallYaYuYo() {
     return (
@@ -31,27 +56,4 @@ class ImpossibleKanaValidator {
       this.response
     );
   }
-  get containsImposssibleKana() {
-    return (
-      this.containsInvalidStartingCharacter ||
-      this.containsInvalidAdjacentCharacters ||
-      this.containsInvalidSmallTSU ||
-      this.containsInvalidSmallYaYuYo
-    );
-  }
-}
-const shouldNotCheck = (a, s) => a.passed || "meaning" === s;
-export default function checkImpossibleKana({
-  questionType: a,
-  response: s,
-  result: t,
-}) {
-  if (shouldNotCheck(t, a)) return null;
-  let n = null;
-  window.ImpossibleKanaValidator = ImpossibleKanaValidator;
-  return (
-    new ImpossibleKanaValidator(s).containsImposssibleKana &&
-      (n = "That looks like a typo. Do you want to retry?"),
-    n
-  );
 }
